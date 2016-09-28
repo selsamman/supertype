@@ -1,3 +1,5 @@
+## 1.4.2
+* template.props was incorrect
 ## 1.4.1
 * Fixed toClient setting which was incorrect
 ## 1.3.3

@@ -51,7 +51,7 @@ ObjectTemplate.getTemplateByName = function (name) {
 ObjectTemplate.getTemplateProperties = function(props)
 {
     var templateProperties = {};
-    if (this.__toClient__ == false)
+    if (ObjectTemplate.__toClient__ == false)
         props.toClient = false;
 
     if (processProp(props.isLocal, this.isLocalRuleSet)) {
@@ -422,7 +422,7 @@ ObjectTemplate._createTemplate = function (template, parentTemplate, properties,
     template.createProperty = createProperty;
 
     template.props = {}
-    var props = ObjectTemplate._getDefineProperties(template, true);
+    var props = ObjectTemplate._getDefineProperties(template, undefined, true);
     for (var prop in props)
         template.props[prop] = props[prop];
 
