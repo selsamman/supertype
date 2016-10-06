@@ -95,13 +95,10 @@ describe("Extended Templates", function () {
 		expect((new ExtendedTemplate3()).str).to.equal('Extended');
 		expect((new ExtendedTemplate3()).obj.type).to.equal('Extended');
 		expect((new ExtendedTemplate3()).date.getTime()).to.equal(200);
-		console.log(JSON.stringify(BaseTemplate1.props.enum));
-		expect(BaseTemplate1.props.enum.values[0]).to.equal('b1');
+		expect((new BaseTemplate1()).__prop__('enum').values[0]).to.equal('b1');
 		expect((new BaseTemplate1()).__prop__('enum').values[0]).to.equal('b1');
 		expect((new BaseTemplate1()).__prop__('enum').descriptions['b1']).to.equal('BaseTemplate1');
 		expect((new ExtendedTemplate4()).__descriptions__('enum')['b3']).to.equal('Extended');
-		
-		
 	});
 });
 

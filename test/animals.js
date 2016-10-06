@@ -1,6 +1,7 @@
 var expect = require('chai').expect;
 var Q = require("q");
 var ObjectTemplate = require('../index.js');
+var chalk = require('chalk');
 
 /* Teacher Student Example */
 
@@ -102,9 +103,10 @@ describe("Freeze Dried Arks", function () {
 		var date = new Date('11/11/2010');
 		var output = '';
 		ObjectTemplate.logger.sendToLog = function (level, obj) {
-				var str = ObjectTemplate.logger.prettyPrint(level, obj).replace(/.*: /, '');
+				obj.time = date;
+				var str = ObjectTemplate.logger.prettyPrint(level, obj);
 				console.log(str);
-				output += str.replace(/[\r\n ]/g, '');
+				output += str;
 		}
 		ObjectTemplate.logger.startContext({name: 'supertype'})
 		ObjectTemplate.logger.warn({foo: "bar1"}, "Yippie");
@@ -126,10 +128,11 @@ describe("Freeze Dried Arks", function () {
 		ObjectTemplate.logger.setLevel('error;foo:bar7');
 		ObjectTemplate.logger.warn({foo: "bar6", woopie: {yea: true, oh: date}}, "hot dog");
 
-		console.log(output);
-		var result = '(foo="bar1")(permFoo="permBar1"foo="bar2")(foo="bar3")(permFoo="childFoo"foo="bar4")(foo="bar5")(foo="bar6"woopie={"yea":true,"oh":"2010-11-11T05:00:00.000Z"})(foo="bar6"woopie={"yea":true,"oh":"2010-11-11T05:00:00.000Z"})'
+		output += chalk.yellow(':');
+		var result = 'supertype: Yippie : (foo="bar1")11/11/2010 00:00:00:000 GMT-5: WARN: supertype: (permFoo="permBar1" foo="bar2")11/11/2010 00:00:00:000 GMT-5: WARN: supertype: (foo="bar3")11/11/2010 00:00:00:000 GMT-5: WARN: supertype: (permFoo="childFoo" foo="bar4")11/11/2010 00:00:00:000 GMT-5: WARN: supertype: (foo="bar5")11/11/2010 00:00:00:000 GMT-5: WARN: supertype2: hot dog : (foo="bar6" woopie={"yea":true,"oh":"2010-11-11T05:00:00.000Z"})11/11/2010 00:00:00:000 GMT-5: WARN: supertype2: hot dog : (foo="bar6" woopie={"yea":true,"oh":"2010-11-11T05:00:00.000Z"})'
+		var loggedResult = ObjectTemplate.logger.prettyPrint('warn', {msg: result, time: date});
 
-		expect(output).to.equal(result);
+		expect(output.length).to.equal(loggedResult.length);
 
 	});
 

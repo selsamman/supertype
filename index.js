@@ -22,6 +22,12 @@
  * ObjectTemplate - n Type System with Benefits
  */
 
+ var chalk;
+
+ if (typeof require === 'function') {
+    chalk = require('chalk');
+ }
+
 function ObjectTemplate() {
 }
 
@@ -820,7 +826,6 @@ ObjectTemplate._createObject = function () {
 
 
 ObjectTemplate.createLogger = function (context) {
-
     var levelToStr = {60: 'fatal', 50: 'error', 40: 'warn', 30: 'info', 20: 'debug', 10: 'trace'};
     var strToLevel = {'fatal':60, 'error':50, 'warn':40, 'info':30, 'debug':20, 'trace':10};
     return createLogger(context);
@@ -958,7 +963,24 @@ ObjectTemplate.createLogger = function (context) {
 
     function prettyPrint(level, json) {
         var split = this.split(json, {time: 1, msg: 1, level: 1, name: 1});
-        return this.formatDateTime(new Date(json.time)) + ": " + level.toUpperCase() + ': ' +  o(split[1].name, ': ') + o(split[1].msg, ': ') + xy(split[0]);
+        var logOutput = this.formatDateTime(new Date(json.time)) + ": " + level.toUpperCase() + ': ' +  o(split[1].name, ': ') + o(split[1].msg, ': ') + xy(split[0]);
+        var levelColors = {
+            fatal: 'red',
+            error: 'red',
+            warn: 'yellow',
+            info: 'green',
+            debug: 'cyan',
+            trace: 'cyan'
+        };
+
+        var levelColor = levelColors[level];
+
+        if (chalk && levelColor) {
+            return chalk[levelColor](logOutput);
+        } else {
+            return logOutput;
+        }
+
         function o (s, d) {
             return s ? s + d : ''
         }
