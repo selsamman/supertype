@@ -78,7 +78,7 @@ ObjectTemplate.getTemplateProperties = function(props)
                 ruleSet.map(function (rule) {ret = ret ? ret : rule == prop});
         } else if (prop instanceof Array) {
             prop.forEach(function (prop) {
-                ret = ret  == null ? ret : processProp(prop, ruleSet)
+                ret = (ret !== null) ? ret : processProp(prop, ruleSet)
             });
         }
         else
@@ -127,6 +127,7 @@ ObjectTemplate.create = function (name, properties) {
         this.templateInterceptor("create", name, properties);
     var template = this._createTemplate(null, Object, properties ? properties : name, createProps);
     this.setTemplateProperties(template, name, createProps);
+    template.__createProps__ = props;
     return template;
 };
 
@@ -352,6 +353,9 @@ ObjectTemplate._createTemplate = function (template, parentTemplate, properties,
                             templatePrototype[propertyName].__returns__ = properties[propertyName].of;
                             templatePrototype[propertyName].__returnsarray__ = true;
                         }
+                        templatePrototype[propertyName].__on__ = properties[propertyName].on;
+                        templatePrototype[propertyName].__validate__ = properties[propertyName].validate;
+                        templatePrototype[propertyName].__body__ = properties[propertyName].body;
                         break;
                         //var origin = properties[propertyName].constructor.toString().replace(/^function */m,'').replace(/\(.*/m,'');
                         //if (origin.match(/^Object/)) { // A defineProperty type definition
@@ -360,6 +364,12 @@ ObjectTemplate._createTemplate = function (template, parentTemplate, properties,
                         properties[propertyName].writable = true;  // We are using setters
                         if (typeof(properties[propertyName].enumerable) == 'undefined')
                             properties[propertyName].enumerable = true;
+                        break;
+                    } else if (properties[propertyName] instanceof Array) {
+                        defineProperty = {type: Object, value: properties[propertyName], enumerable: true, writable: true, isLocal: true};
+                        break;
+                    } else { // Other crap
+                        defineProperty = {type: Object, value: properties[propertyName], enumerable: true, writable: true};
                         break;
                     }
 

@@ -1,3 +1,8 @@
+## 1.4.3
+* Handle definitions of naked array values and undefined object types due to template files not being present in the browser (e.g. toClient: false)
+* Bug in handling of toClientRuleSet
+* Record __createProps__ in template for introspection purposes
+* Record creation properties (.e.g. body, on, etc) for function definitions
 ## 1.4.2
 * template.props was incorrect
 ## 1.4.1
