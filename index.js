@@ -147,6 +147,11 @@ ObjectTemplate.extend = function (parentTemplate, name, properties)
         throw new Error("incorrect template name");
     if (typeof(properties) != 'object')
         throw new Error("missing template property definitions");
+    var existingTemplate = this.__dictionary__[name];
+    if (existingTemplate) {
+        this.mixin(existingTemplate, properties);
+        return existingTemplate;
+    }
     if (typeof(this.templateInterceptor) == 'function')
         this.templateInterceptor("extend", name, properties);
     var template = this._createTemplate(null, parentTemplate, properties ? properties : name, parentTemplate);
@@ -189,11 +194,11 @@ ObjectTemplate.globalInject = function (injector) {
  *
  * @param template - template used for a mixin
  * @param parentTemplate - template used for an extend
- * @param properties - properties to be added/mxied in
+ * @param propertiesOrTemplate - properties to be added/mxied in
  * @return {Function}
  * @private
  */
-ObjectTemplate._createTemplate = function (template, parentTemplate, properties, createProperties)
+ObjectTemplate._createTemplate = function (template, parentTemplate, propertiesOrTemplate, createProperties, sourceTemplate)
 {
     // We will return a constructor that can be used in a new function
     // that will call an init() function found in properties, define properties using Object.defineProperties
@@ -206,11 +211,32 @@ ObjectTemplate._createTemplate = function (template, parentTemplate, properties,
 
     // Setup variables depending on the type of call (create, extend, mixin)
     if (template) { // mixin
-        defineProperties = template.defineProperties;
-        objectProperties = template.objectProperties;
-        functionProperties = template.functionProperties;
-        templatePrototype = template.prototype;
-        parentTemplate = template.parentTemplate;
+        if (propertiesOrTemplate.isObjectTemplate) {
+            for (var prop in propertiesOrTemplate.defineProperties)
+                template.defineProperties[prop] = propertiesOrTemplate.defineProperties[prop];
+            for (var prop in propertiesOrTemplate.objectProperties)
+                template.objectProperties[prop] = propertiesOrTemplate.objectProperties[prop];
+            for (var prop in propertiesOrTemplate.functionProperties)
+                if (prop == 'init') {
+                    template.functionProperties.init = template.functionProperties.init;
+                    for (var ix = 0; ix < propertiesOrTemplate.functionProperties.init.length; ++ix)
+                        template.functionProperties.init.push(propertiesOrTemplate.functionProperties.init[ix])
+                } else
+                    template.functionProperties[prop] = propertiesOrTemplate.functionProperties[prop];
+            for (var prop in propertiesOrTemplate.prototype)
+                template.prototype[prop] = propertiesOrTemplate.prototype[prop];
+            template.props = {}
+            var props = ObjectTemplate._getDefineProperties(template, undefined, true);
+            for (var prop in props)
+                template.props[prop] = props[prop];
+            return template;
+        } else {
+            defineProperties = template.defineProperties;
+            objectProperties = template.objectProperties;
+            functionProperties = template.functionProperties;
+            templatePrototype = template.prototype;
+            parentTemplate = template.parentTemplate;
+        }
     } else {		// extend
         function F() {}
         F.prototype = parentTemplate.prototype;
@@ -289,7 +315,8 @@ ObjectTemplate._createTemplate = function (template, parentTemplate, properties,
                 parentTemplate.call(this);
         } else {
             if (functionProperties.init)
-                functionProperties.init.apply(this, arguments);
+                for (var ix = 0; ix < functionProperties.init.length; ++ix)
+                    functionProperties.init[ix].apply(this, arguments);
         }
 
         this.__template__ = template;
@@ -322,7 +349,6 @@ ObjectTemplate._createTemplate = function (template, parentTemplate, properties,
 
     template.prototype = templatePrototype;
 
-
     var createProperty = function (propertyName, propertyValue, properties, createProperties) {
         if (!properties) {
             properties = {};
@@ -331,7 +357,8 @@ ObjectTemplate._createTemplate = function (template, parentTemplate, properties,
 
         // record the initialization function
         if (propertyName == 'init' && typeof(properties[propertyName]) == 'function') {
-            functionProperties.init = properties[propertyName];
+            functionProperties.init = functionProperties.init || [];
+            functionProperties.init.push(properties[propertyName]);
         } else
         {
             var defineProperty = null;	// defineProperty to be added to defineProperties
@@ -387,6 +414,8 @@ ObjectTemplate._createTemplate = function (template, parentTemplate, properties,
 
                 case 'function':
                     templatePrototype[propertyName] = objectTemplate._setupFunction(propertyName, properties[propertyName]);
+                    templatePrototype[propertyName].sourceTemplate = template.__name__;
+
                     break;
 
                 case 'getset': // getters and setters
@@ -395,21 +424,23 @@ ObjectTemplate._createTemplate = function (template, parentTemplate, properties,
             }
 
             // If a defineProperty to be added
-            if (defineProperty)
+            if (defineProperty) {
                 objectTemplate._setupProperty(propertyName, defineProperty, objectProperties, defineProperties, parentTemplate, createProperties);
+                    defineProperty.sourceTemplate = sourceTemplate;
+            }
         }
     }
 
     // Walk through properties and construct the defineProperties hash of properties, the list of
     // objectProperties that have to be reinstantiated and attach functions to the prototype
-    for (var propertyName in properties) {
-        createProperty(propertyName, null, properties, createProperties);
+    for (var propertyName in propertiesOrTemplate) {
+        createProperty(propertyName, null, propertiesOrTemplate, createProperties);
     };
 
     template.defineProperties = defineProperties;
     template.objectProperties = objectProperties;
     template.getProperties = function(includeVirtual) {
-        return ObjectTemplate._getDefineProperties(template, includeVirtual);
+        return ObjectTemplate._getDefineProperties(template, undefined, includeVirtual);
     }
 
     template.functionProperties = functionProperties;

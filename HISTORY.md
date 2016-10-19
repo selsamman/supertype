@@ -1,3 +1,5 @@
+## 1.4.4
+* Support for mixing in templates
 ## 1.4.3
 * Handle definitions of naked array values and undefined object types due to template files not being present in the browser (e.g. toClient: false)
 * Bug in handling of toClientRuleSet
