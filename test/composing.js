@@ -11,6 +11,7 @@ describe("Composing Templates", function () {
 				obj:        {type: Object, value: {type: 'Base'}},
 				date:       {type: Date, value: new Date(100)},
 				enum:		{type: String, values: ['b1'], descriptions: {'b1': 'BaseTemplate1'}},
+				templatePartialBase: function () {return 'TemplatePartialBase'},
 				init: function () {
 					this.num = 300;
 				}
@@ -22,6 +23,7 @@ describe("Composing Templates", function () {
 				boolFalse:  {type: Boolean, value: false},
 				num:        {type: Number, value: 200},
 				str:        {type: String, value: 'Extended'},
+				templatePartial: function () {return 'TemplatePartial'},
 				init: function () {
 					TemplatePartialBase.call(this);
 					this.str = 'InitValue';
@@ -36,6 +38,7 @@ describe("Composing Templates", function () {
 				str2:        {type: String, value: 'Extended'},
 				obj2:        {type: Object, value: {type: 'Extended'}},
 				date2:       {type: Date, value: new Date(200)},
+				finalTemplate: function () {return 'FinalTemplate'},
 				init: function () {
 					this.boolTrue2 = true;
 					this.boolFalse2 = false;
@@ -60,6 +63,10 @@ describe("Composing Templates", function () {
 		expect((new FinalTemplate()).str2).to.equal('InitValue');
 		expect((new FinalTemplate()).obj2.type).to.equal('InitValue');
 		expect((new FinalTemplate()).date2.getTime()).to.equal(999);
+
+		expect((new FinalTemplate()).finalTemplate()).to.equal('FinalTemplate');
+		expect((new FinalTemplate()).templatePartial()).to.equal('TemplatePartial');
+		expect((new FinalTemplate()).templatePartialBase()).to.equal('TemplatePartialBase');
 
 
 	});

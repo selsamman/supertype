@@ -147,11 +147,13 @@ ObjectTemplate.extend = function (parentTemplate, name, properties)
         throw new Error("incorrect template name");
     if (typeof(properties) != 'object')
         throw new Error("missing template property definitions");
+    /*
     var existingTemplate = this.__dictionary__[name];
     if (existingTemplate) {
         this.mixin(existingTemplate, properties);
         return existingTemplate;
     }
+    */
     if (typeof(this.templateInterceptor) == 'function')
         this.templateInterceptor("extend", name, properties);
     var template = this._createTemplate(null, parentTemplate, properties ? properties : name, parentTemplate);
@@ -357,8 +359,7 @@ ObjectTemplate._createTemplate = function (template, parentTemplate, propertiesO
 
         // record the initialization function
         if (propertyName == 'init' && typeof(properties[propertyName]) == 'function') {
-            functionProperties.init = functionProperties.init || [];
-            functionProperties.init.push(properties[propertyName]);
+            functionProperties.init = [properties[propertyName]];
         } else
         {
             var defineProperty = null;	// defineProperty to be added to defineProperties
@@ -426,7 +427,7 @@ ObjectTemplate._createTemplate = function (template, parentTemplate, propertiesO
             // If a defineProperty to be added
             if (defineProperty) {
                 objectTemplate._setupProperty(propertyName, defineProperty, objectProperties, defineProperties, parentTemplate, createProperties);
-                    defineProperty.sourceTemplate = sourceTemplate;
+                defineProperty.sourceTemplate = sourceTemplate;
             }
         }
     }
