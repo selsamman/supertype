@@ -226,7 +226,10 @@ ObjectTemplate._createTemplate = function (template, parentTemplate, propertiesO
                 } else
                     template.functionProperties[prop] = propertiesOrTemplate.functionProperties[prop];
             for (var prop in propertiesOrTemplate.prototype)
-                template.prototype[prop] = propertiesOrTemplate.prototype[prop];
+                if (Object.getOwnPropertyDescriptor(propertiesOrTemplate.prototype, prop))
+                    Object.defineProperty(template.prototype, prop, Object.getOwnPropertyDescriptor(propertiesOrTemplate.prototype, prop));
+                else
+                    template.prototype[prop] = propertiesOrTemplate.prototype[prop];
             template.props = {}
             var props = ObjectTemplate._getDefineProperties(template, undefined, true);
             for (var prop in props)
