@@ -125,7 +125,7 @@ ObjectTemplate.create = function (name, properties) {
     var createProps = this.getTemplateProperties(props);
     if (typeof(this.templateInterceptor) == 'function')
         this.templateInterceptor("create", name, properties);
-    var template = this._createTemplate(null, Object, properties ? properties : name, createProps);
+    var template = this._createTemplate(null, Object, properties ? properties : name, createProps, name);
     this.setTemplateProperties(template, name, createProps);
     template.__createProps__ = props;
     return template;
@@ -148,15 +148,15 @@ ObjectTemplate.extend = function (parentTemplate, name, properties)
     if (typeof(properties) != 'object')
         throw new Error("missing template property definitions");
     /*
-    var existingTemplate = this.__dictionary__[name];
-    if (existingTemplate) {
-        this.mixin(existingTemplate, properties);
-        return existingTemplate;
-    }
-    */
+     var existingTemplate = this.__dictionary__[name];
+     if (existingTemplate) {
+     this.mixin(existingTemplate, properties);
+     return existingTemplate;
+     }
+     */
     if (typeof(this.templateInterceptor) == 'function')
         this.templateInterceptor("extend", name, properties);
-    var template = this._createTemplate(null, parentTemplate, properties ? properties : name, parentTemplate);
+    var template = this._createTemplate(null, parentTemplate, properties ? properties : name, parentTemplate, name);
     this.setTemplateProperties(template, name, parentTemplate);
 
     // Maintain graph of parent and child templates
@@ -176,7 +176,7 @@ ObjectTemplate.mixin = function (template, properties)
 {
     if (typeof(this.templateInterceptor) == 'function')
         this.templateInterceptor("create", template.__name__, properties);
-    return this._createTemplate(template, null, properties, template);
+    return this._createTemplate(template, null, properties, template, template.__name__);
 };
 
 /**
@@ -200,7 +200,7 @@ ObjectTemplate.globalInject = function (injector) {
  * @return {Function}
  * @private
  */
-ObjectTemplate._createTemplate = function (template, parentTemplate, propertiesOrTemplate, createProperties, sourceTemplate)
+ObjectTemplate._createTemplate = function (template, parentTemplate, propertiesOrTemplate, createProperties, templateName)
 {
     // We will return a constructor that can be used in a new function
     // that will call an init() function found in properties, define properties using Object.defineProperties
@@ -225,11 +225,16 @@ ObjectTemplate._createTemplate = function (template, parentTemplate, propertiesO
                         template.functionProperties.init.push(propertiesOrTemplate.functionProperties.init[ix])
                 } else
                     template.functionProperties[prop] = propertiesOrTemplate.functionProperties[prop];
-            for (var prop in propertiesOrTemplate.prototype)
-                if (Object.getOwnPropertyDescriptor(propertiesOrTemplate.prototype, prop))
-                    Object.defineProperty(template.prototype, prop, Object.getOwnPropertyDescriptor(propertiesOrTemplate.prototype, prop));
-                else
+            for (var prop in propertiesOrTemplate.prototype) {
+                var propDesc = Object.getOwnPropertyDescriptor(propertiesOrTemplate.prototype, prop)
+                if (propDesc) {
+                    Object.defineProperty(template.prototype, prop, propDesc);
+                    if (propDesc.get)
+                        Object.getOwnPropertyDescriptor(template.prototype, prop).get.sourceTemplate = propDesc.get.sourceTemplate;
+                } else {
                     template.prototype[prop] = propertiesOrTemplate.prototype[prop];
+                }
+            }
             template.props = {}
             var props = ObjectTemplate._getDefineProperties(template, undefined, true);
             for (var prop in props)
@@ -418,19 +423,21 @@ ObjectTemplate._createTemplate = function (template, parentTemplate, propertiesO
 
                 case 'function':
                     templatePrototype[propertyName] = objectTemplate._setupFunction(propertyName, properties[propertyName]);
-                    templatePrototype[propertyName].sourceTemplate = template.__name__;
+                    templatePrototype[propertyName].sourceTemplate = sourceTemplate;
 
                     break;
 
                 case 'getset': // getters and setters
+                    descriptor.templateSource = templateName;
                     Object.defineProperty(templatePrototype, propertyName, descriptor);
+                    Object.getOwnPropertyDescriptor(templatePrototype, propertyName).get.sourceTemplate = templateName;
                     break;
             }
 
             // If a defineProperty to be added
             if (defineProperty) {
                 objectTemplate._setupProperty(propertyName, defineProperty, objectProperties, defineProperties, parentTemplate, createProperties);
-                defineProperty.sourceTemplate = sourceTemplate;
+                defineProperty.sourceTemplate = templateName;
             }
         }
     }
