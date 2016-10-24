@@ -1,3 +1,6 @@
+## 1.4.8
+* For new template scheme mixin duplicate extends or scream if they are different
+* staticMixin capability
 ## 1.4.7
 * Leave sourceTemplate on prototype[prop].templateSource and defineProperty[prop].sourceTemplate
 ## 1.4.6

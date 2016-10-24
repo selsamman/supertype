@@ -147,13 +147,18 @@ ObjectTemplate.extend = function (parentTemplate, name, properties)
         throw new Error("incorrect template name");
     if (typeof(properties) != 'object')
         throw new Error("missing template property definitions");
-    /*
-     var existingTemplate = this.__dictionary__[name];
-     if (existingTemplate) {
-     this.mixin(existingTemplate, properties);
-     return existingTemplate;
-     }
-     */
+
+    var existingTemplate = this.__dictionary__[name];
+    if (existingTemplate) {
+        if (existingTemplate.__parent__ != parentTemplate) {
+            if (existingTemplate.__parent__.__name__ != parentTemplate.__name__)
+                console.log("ERROR: Attempt to extend " + parentTemplate.__name__ + ' as ' + name + ' but ' + name + ' was already extended from ' + existingTemplate.__parent__.__name__);
+        } else {
+            this.mixin(existingTemplate, properties);
+            return existingTemplate;
+        }
+    }
+
     if (typeof(this.templateInterceptor) == 'function')
         this.templateInterceptor("extend", name, properties);
     var template = this._createTemplate(null, parentTemplate, properties ? properties : name, parentTemplate, name);
@@ -178,6 +183,12 @@ ObjectTemplate.mixin = function (template, properties)
         this.templateInterceptor("create", template.__name__, properties);
     return this._createTemplate(template, null, properties, template, template.__name__);
 };
+
+ObjectTemplate.staticMixin = function (template, properties)
+{
+    for (var prop in properties)
+        template[prop] = properties[prop];
+}
 
 /**
  * Add a function that will fire on object creation
@@ -220,7 +231,7 @@ ObjectTemplate._createTemplate = function (template, parentTemplate, propertiesO
                 template.objectProperties[prop] = propertiesOrTemplate.objectProperties[prop];
             for (var prop in propertiesOrTemplate.functionProperties)
                 if (prop == 'init') {
-                    template.functionProperties.init = template.functionProperties.init;
+                    template.functionProperties.init = template.functionProperties.init || [];
                     for (var ix = 0; ix < propertiesOrTemplate.functionProperties.init.length; ++ix)
                         template.functionProperties.init.push(propertiesOrTemplate.functionProperties.init[ix])
                 } else
@@ -423,7 +434,7 @@ ObjectTemplate._createTemplate = function (template, parentTemplate, propertiesO
 
                 case 'function':
                     templatePrototype[propertyName] = objectTemplate._setupFunction(propertyName, properties[propertyName]);
-                    templatePrototype[propertyName].sourceTemplate = sourceTemplate;
+                    templatePrototype[propertyName].sourceTemplate = templateName;
 
                     break;
 
@@ -462,6 +473,9 @@ ObjectTemplate._createTemplate = function (template, parentTemplate, propertiesO
     };
     template.mixin = function (p1, p2) {
         return objectTemplate.mixin.call(objectTemplate, this, p1, p2);
+    };
+    template.staticMixin = function (p1, p2) {
+        return objectTemplate.staticMixin.call(objectTemplate, this, p1, p2);
     };
     template.fromPOJO = function(pojo) {
         return objectTemplate.fromPOJO(pojo, template);
