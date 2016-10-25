@@ -152,7 +152,7 @@ ObjectTemplate.extend = function (parentTemplate, name, properties)
     if (existingTemplate) {
         if (existingTemplate.__parent__ != parentTemplate) {
             if (existingTemplate.__parent__.__name__ != parentTemplate.__name__)
-                console.log("ERROR: Attempt to extend " + parentTemplate.__name__ + ' as ' + name + ' but ' + name + ' was already extended from ' + existingTemplate.__parent__.__name__);
+                console.log("WARN: Attempt to extend " + parentTemplate.__name__ + ' as ' + name + ' but ' + name + ' was already extended from ' + existingTemplate.__parent__.__name__);
         } else {
             this.mixin(existingTemplate, properties);
             return existingTemplate;

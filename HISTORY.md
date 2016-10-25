@@ -1,3 +1,5 @@
+## 1.4.9
+* Reduced duplicate template names to warning rather than an error
 ## 1.4.8
 * For new template scheme mixin duplicate extends or scream if they are different
 * staticMixin capability
