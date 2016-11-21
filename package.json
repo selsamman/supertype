@@ -4,8 +4,16 @@
     "homepage": "https://github.com/selsamman/supertype",
     "version": "1.4.9",
     "devDependencies": {
-        "q": "1.x",
-        "chai": "*"
+        "chai": "*",
+        "istanbul": "0.4.5",
+        "mocha": "^3.1.2",
+        "sinon": "1.15.x",
+        "q": "1.x"
+    },
+    "scripts": {
+        "test": "istanbul cover _mocha -- test/* -R spec",
+        "test:config": "mocha test/config",
+        "test:example": "mocha test/example"
     },
     "directories": {
     },
