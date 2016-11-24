@@ -15,13 +15,13 @@ module.exports = exports = {
     // Overrides from recommended set
     "rules": {
         // Ignore unused vars that start with underscore
-        "no-unused-vars": [ ERROR, { "args": "all", "argsIgnorePattern": "^_" } ],
+        "no-unused-vars": [ OFF, { "args": "all", "argsIgnorePattern": "^_" } ],
         
         // Possible Errors
-        "no-unexpected-multiline": ERROR,
+        "no-unexpected-multiline": OFF,
         
         // All JSDoc comments must be valid
-        "valid-jsdoc": [ ERROR, {
+        "valid-jsdoc": [ OFF, {
             "requireReturn": false,
             "requireReturnDescription": false,
             "requireParamDescription": true,
@@ -37,15 +37,15 @@ module.exports = exports = {
         }],
         
         // Whitespace
-        "indent": [ERROR, 4],
-        "no-trailing-spaces": ERROR,
-        "space-before-blocks": ERROR,
-        "keyword-spacing": ERROR,
-        "semi-spacing": ERROR,
-        "comma-spacing": ERROR,
-        "space-infix-ops": ERROR,
-        "space-in-parens": ERROR,
-        "array-bracket-spacing": ERROR,
+        "indent": [OFF, 4],
+        "no-trailing-spaces": OFF,
+        "space-before-blocks": OFF,
+        "keyword-spacing": OFF,
+        "semi-spacing": OFF,
+        "comma-spacing": OFF,
+        "space-infix-ops": OFF,
+        "space-in-parens": OFF,
+        "array-bracket-spacing": OFF,
         
         // Low Risk
         "curly": OFF,
