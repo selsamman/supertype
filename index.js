@@ -143,17 +143,17 @@ ObjectTemplate.create = function (name, properties) {
     }
     
     if (typeof(name) != 'string' || name.match(/[^A-Za-z0-9_]/)) {
-        throw new Error("incorrect template name");
+        throw new Error('incorrect template name');
     }
     
     if (typeof(properties) != 'object') {
-        throw new Error("missing template property definitions");
+        throw new Error('missing template property definitions');
     }
     
     var createProps = this.getTemplateProperties(props);
     
     if (typeof(this.templateInterceptor) == 'function') {
-        this.templateInterceptor("create", name, properties);
+        this.templateInterceptor('create', name, properties);
     }
     
     var template;
@@ -181,15 +181,15 @@ ObjectTemplate.create = function (name, properties) {
  */
 ObjectTemplate.extend = function (parentTemplate, name, properties) {
     if (!parentTemplate.__objectTemplate__) {
-        throw new Error("incorrect parent template");
+        throw new Error('incorrect parent template');
     }
     
     if (typeof(name) != 'string' || name.match(/[^A-Za-z0-9_]/)) {
-        throw new Error("incorrect template name");
+        throw new Error('incorrect template name');
     }
     
     if (typeof(properties) != 'object') {
-        throw new Error("missing template property definitions");
+        throw new Error('missing template property definitions');
     }
 
     var existingTemplate = this.__dictionary__[name];
@@ -197,7 +197,7 @@ ObjectTemplate.extend = function (parentTemplate, name, properties) {
     if (existingTemplate) {
         if (existingTemplate.__parent__ != parentTemplate) {
             if (existingTemplate.__parent__.__name__ != parentTemplate.__name__) {
-                console.log("WARN: Attempt to extend " + parentTemplate.__name__ + ' as ' + name + ' but ' + name + ' was already extended from ' + existingTemplate.__parent__.__name__);
+                console.log('WARN: Attempt to extend ' + parentTemplate.__name__ + ' as ' + name + ' but ' + name + ' was already extended from ' + existingTemplate.__parent__.__name__);
             }
         }
         else {
@@ -208,7 +208,7 @@ ObjectTemplate.extend = function (parentTemplate, name, properties) {
     }
 
     if (typeof(this.templateInterceptor) == 'function') {
-        this.templateInterceptor("extend", name, properties);
+        this.templateInterceptor('extend', name, properties);
     }
     
     var template;
@@ -238,7 +238,7 @@ ObjectTemplate.extend = function (parentTemplate, name, properties) {
  */
 ObjectTemplate.mixin = function (template, properties) {
     if (typeof(this.templateInterceptor) == 'function') {
-        this.templateInterceptor("create", template.__name__, properties);
+        this.templateInterceptor('create', template.__name__, properties);
     }
     
     return this._createTemplate(template, null, properties, template, template.__name__);
@@ -512,7 +512,7 @@ ObjectTemplate._createTemplate = function (template, parentTemplate, propertiesO
                 // Figure out whether this is a defineProperty structure (has a constructor of object)
                 case 'object': // or array
                     // Handle remote function calls
-                    if (properties[propertyName].body && typeof(properties[propertyName].body) == "function") {
+                    if (properties[propertyName].body && typeof(properties[propertyName].body) == 'function') {
                         templatePrototype[propertyName] = objectTemplate._setupFunction(propertyName, properties[propertyName].body, properties[propertyName].on, properties[propertyName].validate);
                         
                         if (properties[propertyName].type) {
@@ -643,7 +643,7 @@ ObjectTemplate._stashObject = function(obj, template)
             ObjectTemplate.nextId = 1;
         }
         
-        obj.__id__ = "local-" + template.__name__ + "-" + ++ObjectTemplate.nextId;
+        obj.__id__ = 'local-' + template.__name__ + '-' + ++ObjectTemplate.nextId;
     }
     
     return false;
@@ -726,7 +726,7 @@ ObjectTemplate._setupProperty = function(propertyName, defineProperty, objectPro
                 }
                 
                 if (!defineProperty.isVirtual) {
-                    this["__" + prop] = value;
+                    this['__' + prop] = value;
                 }
             }
         })();
@@ -743,10 +743,10 @@ ObjectTemplate._setupProperty = function(propertyName, defineProperty, objectPro
                         return userGetter.call(this, undefined);
                     }
                     
-                    return userGetter.call(this, this["__"+prop]);
+                    return userGetter.call(this, this['__' + prop]);
                 }
                 
-                return this["__"+prop];
+                return this['__' + prop];
             }
         })();
 
@@ -1010,7 +1010,7 @@ ObjectTemplate._resolveSubClass = function (template, objId, defineProperty)
     }
     
     // Resolve template subclass for polymorphic instantiation
-    if (defineProperty && defineProperty.subClasses && objId != "anonymous)") {
+    if (defineProperty && defineProperty.subClasses && objId != 'anonymous)') {
         if (templateName) {
             for (var ix = 0; ix < defineProperty.subClasses.length; ++ix) {
                 if (templateName == defineProperty.subClasses[ix].__name__) {
@@ -1238,8 +1238,8 @@ ObjectTemplate.createLogger = function (context) {
 
     // log all arguments assuming the first one is level and the second one might be an object (similar to banyan)
     function log () {
-        var msg = "";
-        var obj = {time: (new Date()).toISOString(), msg: ""};
+        var msg = '';
+        var obj = {time: (new Date()).toISOString(), msg: ''};
     
         for (var prop in this.context) {
             obj[prop] = this.context[prop];
@@ -1257,12 +1257,12 @@ ObjectTemplate.createLogger = function (context) {
                 }
             }
             else {
-                msg += arg + " ";
+                msg += arg + ' ';
             }
         }
         
         if (obj.msg.length) {
-            obj.msg += " ";
+            obj.msg += ' ';
         }
         
         if (msg.length) {
@@ -1326,12 +1326,12 @@ ObjectTemplate.createLogger = function (context) {
     }
 
     function formatDateTime(date) {
-        return  f(2, (date.getMonth() + 1), '/') + f(2, date.getDate(), '/') + f(4, date.getFullYear(), " ") +
+        return  f(2, (date.getMonth() + 1), '/') + f(2, date.getDate(), '/') + f(4, date.getFullYear(), ' ') +
             f(2, date.getHours(), ':') + f(2, date.getMinutes(), ':') + f(2, date.getSeconds(), ':') +
             f(3, date.getMilliseconds()) + ' GMT' + (0 - date.getTimezoneOffset() / 60);
         
         function f(z, d, s) {
-            while ((d + "").length < z) {
+            while ((d + '').length < z) {
                 d = '0' + d;
             }
             
@@ -1346,7 +1346,7 @@ ObjectTemplate.createLogger = function (context) {
     function prettyPrint(level, json) {
         var split = this.split(json, {time: 1, msg: 1, level: 1, name: 1});
         
-        return this.formatDateTime(new Date(json.time)) + ": " + level.toUpperCase() + ': ' +  o(split[1].name, ': ') + o(split[1].msg, ': ') + xy(split[0]);
+        return this.formatDateTime(new Date(json.time)) + ': ' + level.toUpperCase() + ': ' +  o(split[1].name, ': ') + o(split[1].msg, ': ') + xy(split[0]);
         
         function o (s, d) {
             if (s) {
