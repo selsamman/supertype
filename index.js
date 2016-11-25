@@ -272,7 +272,7 @@ ObjectTemplate.globalInject = function (injector) {
  * @return {Function}
  * @private
  */
-ObjectTemplate._createTemplate = function (template, parentTemplate, propertiesOrTemplate, createProperties, templateName) {
+ObjectTemplate._createTemplate = function (mixinTemplate, parentTemplate, propertiesOrTemplate, createProperties, templateName) {
     // We will return a constructor that can be used in a new function
     // that will call an init() function found in properties, define properties using Object.defineProperties
     // and make copies of those that are really objects
@@ -283,60 +283,60 @@ ObjectTemplate._createTemplate = function (template, parentTemplate, propertiesO
     var templatePrototype;
 
     // Setup variables depending on the type of call (create, extend, mixin)
-    if (template) { // mixin
+    if (mixinTemplate) { // mixin
         if (propertiesOrTemplate.isObjectTemplate) {
             for (var prop in propertiesOrTemplate.defineProperties) {
-                template.defineProperties[prop] = propertiesOrTemplate.defineProperties[prop];
+                mixinTemplate.defineProperties[prop] = propertiesOrTemplate.defineProperties[prop];
             }
             
-            for (var prop in propertiesOrTemplate.objectProperties) {
-                template.objectProperties[prop] = propertiesOrTemplate.objectProperties[prop];
+            for (var propp in propertiesOrTemplate.objectProperties) {
+                mixinTemplate.objectProperties[propp] = propertiesOrTemplate.objectProperties[propp];
             }
             
-            for (var prop in propertiesOrTemplate.functionProperties) {
-                if (prop == 'init') {
-                    template.functionProperties.init = template.functionProperties.init || [];
+            for (var propo in propertiesOrTemplate.functionProperties) {
+                if (propo == 'init') {
+                    mixinTemplate.functionProperties.init = mixinTemplate.functionProperties.init || [];
                     
                     for (var ix = 0; ix < propertiesOrTemplate.functionProperties.init.length; ++ix) {
-                        template.functionProperties.init.push(propertiesOrTemplate.functionProperties.init[ix]);
+                        mixinTemplate.functionProperties.init.push(propertiesOrTemplate.functionProperties.init[ix]);
                     }
                 }
                 else {
-                    template.functionProperties[prop] = propertiesOrTemplate.functionProperties[prop];
+                    mixinTemplate.functionProperties[propo] = propertiesOrTemplate.functionProperties[propo];
                 }
             }
             
-            for (var prop in propertiesOrTemplate.prototype) {
-                var propDesc = Object.getOwnPropertyDescriptor(propertiesOrTemplate.prototype, prop);
+            for (var propn in propertiesOrTemplate.prototype) {
+                var propDesc = Object.getOwnPropertyDescriptor(propertiesOrTemplate.prototype, propn);
                 
                 if (propDesc) {
-                    Object.defineProperty(template.prototype, prop, propDesc);
+                    Object.defineProperty(mixinTemplate.prototype, propn, propDesc);
                     
                     if (propDesc.get) {
-                        Object.getOwnPropertyDescriptor(template.prototype, prop).get.sourceTemplate = propDesc.get.sourceTemplate;
+                        Object.getOwnPropertyDescriptor(mixinTemplate.prototype, propn).get.sourceTemplate = propDesc.get.sourceTemplate;
                     }
                 }
                 else {
-                    template.prototype[prop] = propertiesOrTemplate.prototype[prop];
+                    mixinTemplate.prototype[propn] = propertiesOrTemplate.prototype[propn];
                 }
             }
             
-            template.props = {};
+            mixinTemplate.props = {};
             
-            var props = ObjectTemplate._getDefineProperties(template, undefined, true);
+            var props = ObjectTemplate._getDefineProperties(mixinTemplate, undefined, true);
             
-            for (var prop in props) {
-                template.props[prop] = props[prop];
+            for (var propm in props) {
+                mixinTemplate.props[propm] = props[propm];
             }
             
-            return template;
+            return mixinTemplate;
         }
         else {
-            defineProperties = template.defineProperties;
-            objectProperties = template.objectProperties;
-            functionProperties = template.functionProperties;
-            templatePrototype = template.prototype;
-            parentTemplate = template.parentTemplate;
+            defineProperties = mixinTemplate.defineProperties;
+            objectProperties = mixinTemplate.objectProperties;
+            functionProperties = mixinTemplate.functionProperties;
+            templatePrototype = mixinTemplate.prototype;
+            parentTemplate = mixinTemplate.parentTemplate;
         }
     }
     else {        // extend
@@ -344,7 +344,7 @@ ObjectTemplate._createTemplate = function (template, parentTemplate, propertiesO
         F.prototype = parentTemplate.prototype;
         templatePrototype = new F();
     }
-
+    
     /**
      * Constructor that will be returned
      */
@@ -400,8 +400,8 @@ ObjectTemplate._createTemplate = function (template, parentTemplate, propertiesO
         }
         
         // Global injections
-        for (var ix = 0; ix < objectTemplate.__injections__.length; ++ix) {
-            objectTemplate.__injections__[ix].call(this, this);
+        for (var j = 0; j < objectTemplate.__injections__.length; ++j) {
+            objectTemplate.__injections__[j].call(this, this);
         }
         
         this.__prop__ = function(prop) {
@@ -437,8 +437,8 @@ ObjectTemplate._createTemplate = function (template, parentTemplate, propertiesO
         }
         else {
             if (functionProperties.init) {
-                for (var ix = 0; ix < functionProperties.init.length; ++ix) {
-                    functionProperties.init[ix].apply(this, arguments);
+                for (var i = 0; i < functionProperties.init.length; ++i) {
+                    functionProperties.init[i].apply(this, arguments);
                 }
             }
         }
@@ -619,10 +619,10 @@ ObjectTemplate._createTemplate = function (template, parentTemplate, propertiesO
     
     template.props = {};
     
-    var props = ObjectTemplate._getDefineProperties(template, undefined, true);
+    var propst = ObjectTemplate._getDefineProperties(template, undefined, true);
     
-    for (var prop in props) {
-        template.props[prop] = props[prop];
+    for (var propd in propst) {
+        template.props[propd] = propst[propd];
     }
     
     return template;
@@ -771,11 +771,13 @@ ObjectTemplate._setupProperty = function(propertyName, defineProperty, objectPro
 // Function to clone simple objects using ObjectTemplate as a guide
 ObjectTemplate.clone = function (obj, template)
 {
+    var copy;
+    
     if (obj instanceof Date) {
         return new Date(obj.getTime());
     }
     else if (obj instanceof Array) {
-        var copy = [];
+        copy = [];
         
         for (var ix = 0; ix < obj.length; ++ix) {
             copy[ix] = this.clone(obj[ix], template);
@@ -784,7 +786,7 @@ ObjectTemplate.clone = function (obj, template)
         return copy;
     }
     else if (template && obj instanceof template) {
-        var copy = new template();
+        copy = new template();
         
         for (var prop in obj) {
             if (prop != '__id__' && !(obj[prop] instanceof Function)) {
@@ -799,11 +801,11 @@ ObjectTemplate.clone = function (obj, template)
         return copy;
     }
     else if (obj instanceof Object) {
-        var copy =  {};
+        copy =  {};
         
-        for (var prop in obj) {
-            if (obj.hasOwnProperty(prop)) {
-                copy[prop] = this.clone(obj[prop]);
+        for (var propc in obj) {
+            if (obj.hasOwnProperty(propc)) {
+                copy[propc] = this.clone(obj[propc]);
             }
         }
         
@@ -841,9 +843,11 @@ ObjectTemplate.fromPOJO = function (pojo, template, defineProperty, idMap, idQua
     if (!pojo.__id__) {
         return;
     }
-
+    
+    var obj;
+    
     if (creator) {
-        var obj = creator(parent, prop, template, idMap[pojo.__id__.toString()], pojo.__transient__);
+        obj = creator(parent, prop, template, idMap[pojo.__id__.toString()], pojo.__transient__);
         
         if (obj instanceof Array) {
             obj = obj[0];
@@ -862,7 +866,7 @@ ObjectTemplate.fromPOJO = function (pojo, template, defineProperty, idMap, idQua
         }
     }
     else {
-        var obj = this._createEmptyObject(template, getId(pojo.__id__.toString()), defineProperty, pojo.__transient__);
+        obj = this._createEmptyObject(template, getId(pojo.__id__.toString()), defineProperty, pojo.__transient__);
     }
     
     idMap[getId(pojo.__id__.toString())] = obj;
@@ -870,61 +874,61 @@ ObjectTemplate.fromPOJO = function (pojo, template, defineProperty, idMap, idQua
     // Go through all the properties and transfer them to newly created object
     var props = obj.__template__.getProperties();
     
-    for (var prop in props) {
-        var value = pojo[prop];
-        var defineProperty = props[prop];
-        var type = defineProperty.type;
+    for (var propb in props) {
+        var value = pojo[propb];
+        var defineProp = props[propb];
+        var type = defineProp.type;
     
-        if (type && pojo[prop] == null) {
-            obj[prop] = null;
+        if (type && pojo[propb] == null) {
+            obj[propb] = null;
         }
-        else if (type && typeof(pojo[prop]) != 'undefined') {
-            if (type == Array && defineProperty.of && defineProperty.of.isObjectTemplate) { // Array of templated objects
+        else if (type && typeof(pojo[propb]) != 'undefined') {
+            if (type == Array && defineProp.of && defineProp.of.isObjectTemplate) { // Array of templated objects
                 var arrayDirections = null;
                 
                 if (creator) {
-                    arrayDirections = creator(obj, prop, defineProperty.of, idMap[pojo.__id__.toString()], pojo.__transient__);
+                    arrayDirections = creator(obj, propb, defineProp.of, idMap[pojo.__id__.toString()], pojo.__transient__);
                 }
                 
                 if (typeof(arrayDirections) != 'undefined') {
-                    obj[prop] = [];
+                    obj[propb] = [];
                     
-                    for (var ix = 0; ix < pojo[prop].length; ++ix) {
-                        if (pojo[prop][ix]) {
-                            if (pojo[prop][ix].__id__ && idMap[getId(pojo[prop][ix].__id__.toString())]) {
-                                obj[prop][ix] = idMap[getId(pojo[prop][ix].__id__.toString())];
+                    for (var ix = 0; ix < pojo[propb].length; ++ix) {
+                        if (pojo[propb][ix]) {
+                            if (pojo[propb][ix].__id__ && idMap[getId(pojo[propb][ix].__id__.toString())]) {
+                                obj[propb][ix] = idMap[getId(pojo[propb][ix].__id__.toString())];
                             }
                             else {
-                                obj[prop][ix] = this.fromPOJO(pojo[prop][ix], defineProperty.of, defineProperty, idMap, idQualifier, obj, prop, creator);
+                                obj[propb][ix] = this.fromPOJO(pojo[propb][ix], defineProp.of, defineProp, idMap, idQualifier, obj, propb, creator);
                             }
                         }
                         else {
-                            obj[prop][ix] = null;
+                            obj[propb][ix] = null;
                         }
                     }
                 }
                 else {
-                    obj[prop] = [];
+                    obj[propb] = [];
                 }
             }
             else if (type.isObjectTemplate) { // Templated objects
-                if (pojo[prop].__id__ && idMap[getId(pojo[prop].__id__.toString())]) {
-                    obj[prop] = idMap[getId(pojo[prop].__id__.toString())];
+                if (pojo[propb].__id__ && idMap[getId(pojo[propb].__id__.toString())]) {
+                    obj[propb] = idMap[getId(pojo[propb].__id__.toString())];
                 }
                 else {
-                    obj[prop] = this.fromPOJO(pojo[prop], type, defineProperty, idMap, idQualifier, obj, prop, creator);
+                    obj[propb] = this.fromPOJO(pojo[propb], type, defineProp, idMap, idQualifier, obj, propb, creator);
                 }
             }
             else if (type == Date) {
-                if (pojo[prop]) {
-                    obj[prop] = new Date(pojo[prop]);
+                if (pojo[propb]) {
+                    obj[propb] = new Date(pojo[propb]);
                 }
                 else {
-                    obj[prop] = null;
+                    obj[propb] = null;
                 }
             }
             else {
-                obj[prop] = pojo[prop];
+                obj[propb] = pojo[propb];
             }
         }
     }
@@ -1003,7 +1007,7 @@ ObjectTemplate.toJSONString = function (obj, cb) {
  */
 ObjectTemplate._resolveSubClass = function (template, objId, defineProperty)
 {
-    var templateName = "";
+    var templateName = '';
     
     if (objId.match(/-([A-Za-z0-9_:]*)-/)) {
         templateName = RegExp.$1;
@@ -1202,9 +1206,9 @@ ObjectTemplate.createLogger = function (context) {
         var levels = level.split(';');
         
         for (var ix = 0; ix < levels.length; ++ix) {
-            var level = levels[ix];
+            var levela = levels[ix];
             
-            if (level.match(/:/)) {
+            if (levela.match(/:/)) {
                 if (levels[ix].match(/(.*):(.*)/)) {
                     this.granularLevels[RegExp.$1] = this.granularLevels[RegExp.$1] || {};
                     this.granularLevels[RegExp.$1] = RegExp.$2;
@@ -1214,7 +1218,7 @@ ObjectTemplate.createLogger = function (context) {
                 }
             }
             else {
-                this.level = level;
+                this.level = levela;
             }
         }
     }
@@ -1228,8 +1232,8 @@ ObjectTemplate.createLogger = function (context) {
         }
         
         if (this.granularLevels) {
-            for (var level in this.granularLevels) {
-                if (obj[level] && obj[level] == this.granularLevels[level]) {
+            for (var levelr in this.granularLevels) {
+                if (obj[levelr] && obj[levelr] == this.granularLevels[levelr]) {
                     return true;
                 }
             }
@@ -1252,8 +1256,8 @@ ObjectTemplate.createLogger = function (context) {
                 obj.level = arg;
             }
             else if (ix == 1 && isObject(arg)) {
-                for (var prop in arg) {
-                    obj[prop] = arg[prop];
+                for (var proper in arg) {
+                    obj[proper] = arg[proper];
                 }
             }
             else {
@@ -1318,8 +1322,8 @@ ObjectTemplate.createLogger = function (context) {
     
         child.context = context || {};
     
-        for (var prop in this.context) {
-            child.context[prop] = this.context[prop];
+        for (var proper in this.context) {
+            child.context[proper] = this.context[proper];
         }
         
         return child;
