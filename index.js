@@ -197,6 +197,7 @@ ObjectTemplate.extend = function (parentTemplate, name, properties) {
     if (existingTemplate) {
         if (existingTemplate.__parent__ != parentTemplate) {
             if (existingTemplate.__parent__.__name__ != parentTemplate.__name__) {
+                // eslint-disable-next-line no-console
                 console.log('WARN: Attempt to extend ' + parentTemplate.__name__ + ' as ' + name + ' but ' + name + ' was already extended from ' + existingTemplate.__parent__.__name__);
             }
         }
@@ -281,7 +282,9 @@ ObjectTemplate._createTemplate = function (mixinTemplate, parentTemplate, proper
     var defineProperties = {};    // List of properties to be sent to Object.defineProperties()
     var objectTemplate = this;
     var templatePrototype;
-
+    
+    function F() {}     // Used in case of extend
+    
     // Setup variables depending on the type of call (create, extend, mixin)
     if (mixinTemplate) { // mixin
         if (propertiesOrTemplate.isObjectTemplate) {
@@ -340,7 +343,6 @@ ObjectTemplate._createTemplate = function (mixinTemplate, parentTemplate, proper
         }
     }
     else {        // extend
-        function F() {}
         F.prototype = parentTemplate.prototype;
         templatePrototype = new F();
     }
@@ -366,7 +368,8 @@ ObjectTemplate._createTemplate = function (mixinTemplate, parentTemplate, proper
             }
         }
         catch (e) {
-            console.log(e);
+            // TODO: find a better way to deal with errors that are thrown
+            console.log(e);     // eslint-disable-line no-console
         }
         
         this.fromRemote = this.fromRemote || objectTemplate._stashObject(this, template);
@@ -1293,9 +1296,9 @@ ObjectTemplate.createLogger = function (context) {
         this.context = context;
     }
 
-    // Save the properties in the context and return a new object that has the properties only so they can ber cleared
+    // Save the properties in the context and return a new object that has the properties only so they can be cleared
     function setContextProps (context) {
-        reverse = {};
+        var reverse = {};
         
         for (var prop in context) {
             reverse[prop] = true;
@@ -1304,7 +1307,7 @@ ObjectTemplate.createLogger = function (context) {
         
         return reverse;
     }
-
+    
     // Remove any properties recorded by setContext
     function clearContextProps(contextToClear) {
         for (var prop in contextToClear) {
@@ -1344,7 +1347,7 @@ ObjectTemplate.createLogger = function (context) {
     }
 
     function sendToLog(level, json) {
-        console.log(this.prettyPrint(level, json));
+        console.log(this.prettyPrint(level, json));     // eslint-disable-line no-console
     }
 
     function prettyPrint(level, json) {
