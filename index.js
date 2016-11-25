@@ -658,7 +658,7 @@ ObjectTemplate._stashObject = function(obj, template)
  * @param obj - the object to be passed during creation time
  * @private
  */
-ObjectTemplate._injectIntoObject = function(obj) {
+ObjectTemplate._injectIntoObject = function(_obj) {
 };
 
 /**
@@ -667,7 +667,7 @@ ObjectTemplate._injectIntoObject = function(obj) {
  * @param obj - the object to be passed during creation time
  * @private
  */
-ObjectTemplate._injectIntoTemplate = function(template){
+ObjectTemplate._injectIntoTemplate = function(_template){
 };
 
 /**
@@ -679,7 +679,7 @@ ObjectTemplate._injectIntoTemplate = function(template){
  * @return {*} a new function to be assigned to the object prototype
  * @private
  */
-ObjectTemplate._setupFunction = function(propertyName, propertyValue) {
+ObjectTemplate._setupFunction = function(_propertyName, propertyValue) {
     return propertyValue;
 };
 
@@ -878,7 +878,6 @@ ObjectTemplate.fromPOJO = function (pojo, template, defineProperty, idMap, idQua
     var props = obj.__template__.getProperties();
     
     for (var propb in props) {
-        var value = pojo[propb];
         var defineProp = props[propb];
         var type = defineProp.type;
     
