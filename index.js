@@ -25,6 +25,9 @@
 function ObjectTemplate() {
 }
 
+/**
+ * Purpose unknown
+ */
 ObjectTemplate.performInjections = function () {
     if (this.__templatesToInject__) {
         var objectTemplate = this;
@@ -41,25 +44,42 @@ ObjectTemplate.performInjections = function () {
     }
 };
 
+/**
+ * Purpose unknown
+ */
 ObjectTemplate.init = function () {
     this.__injections__ = [];
     this.__dictionary__ = {};
     this.__anonymousId__ = 1;
     this.__templatesToInject__ = {};
-    this.logger = this.createLogger(); // create a default logger
+    this.logger = this.createLogger(); // Create a default logger
 };
 
+/**
+ * Purpose unknown
+ *
+ * @param {unknown} name unknown
+ *
+ * @returns {unknown}
+ */
 ObjectTemplate.getTemplateByName = function (name) {
     return this.__dictionary__[name];
 };
 
+/**
+ * Purpose unknown
+ *
+ * @param {unknown} props unknown
+ *
+ * @returns {unknown}
+ */
 ObjectTemplate.getTemplateProperties = function(props) {
     var templateProperties = {};
     
     if (ObjectTemplate.__toClient__ == false) {
         props.toClient = false;
     }
-
+    
     if (processProp(props.isLocal, this.isLocalRuleSet)) {
         props.toServer = false;
         props.toClient = false;
@@ -67,13 +87,16 @@ ObjectTemplate.getTemplateProperties = function(props) {
     
     templateProperties.__toClient__ = processProp(props.toClient, this.toClientRuleSet) != false;
     templateProperties.__toServer__ = processProp(props.toServer, this.toServerRuleSet) != false;
-
+    
     return templateProperties;
     
     /**
      * Allow the property to be either a boolean a function that returns a boolean or a string
      * matched against a rule set array of string in ObjectTemplate
-     * @param prop
+     *
+     * @param {unknown} prop unknown
+     * @param {unknown} ruleSet unknown
+     *
      * @returns {function(this:ObjectTemplate)}
      */
     function processProp(prop, ruleSet) {
@@ -106,9 +129,15 @@ ObjectTemplate.getTemplateProperties = function(props) {
         
         return ret;
     }
-
 };
 
+/**
+ * Purpose unknown
+ *
+ * @param {unknown} template unknown
+ * @param {unknown} name unknown
+ * @param {unknown} props unknown
+ */
 ObjectTemplate.setTemplateProperties = function(template, name, props) {
     this.__templatesToInject__[name] = template;
     this.__dictionary__[name] = template;
@@ -123,15 +152,17 @@ ObjectTemplate.setTemplateProperties = function(template, name, props) {
 /**
  * Create and object template that is instantiated with the new operator.
  * properties is
- * @param name the name of the template or an object with
+ *
+ * @param {unknown} name the name of the template or an object with
  *        name - the name of the class
  *        toClient - whether the object is to be shipped to the client (with semotus)
  *        toServer - whether the object is to be shipped to the server (with semotus)
  *        isLocal - equivalent to setting toClient && toServer to false
- * @param properties an object whose properties represent data and function
+ * @param {unknown} properties an object whose properties represent data and function
  * properties of the object.  The data properties may use the defineProperty
  * format for properties or may be properties assigned a Number, String or Date.
- * @return {*} the object template
+ *
+ * @returns {*} the object template
  */
 ObjectTemplate.create = function (name, properties) {
     if (typeof(name) != 'undefined' && name.name) {
@@ -174,10 +205,11 @@ ObjectTemplate.create = function (name, properties) {
 /**
  * Extend and existing (parent template)
  *
- * @param parentTemplate
- * @param the name of the template
- * @param properties are the same as for create
- * @return {*} the object template
+ * @param {unknown} parentTemplate unknown
+ * @param {unknown} name of the template
+ * @param {unknown} properties are the same as for create
+ *
+ * @returns {*} the object template
  */
 ObjectTemplate.extend = function (parentTemplate, name, properties) {
     if (!parentTemplate.__objectTemplate__) {
@@ -191,7 +223,7 @@ ObjectTemplate.extend = function (parentTemplate, name, properties) {
     if (typeof(properties) != 'object') {
         throw new Error('missing template property definitions');
     }
-
+    
     var existingTemplate = this.__dictionary__[name];
     
     if (existingTemplate) {
@@ -207,7 +239,7 @@ ObjectTemplate.extend = function (parentTemplate, name, properties) {
             return existingTemplate;
         }
     }
-
+    
     if (typeof(this.templateInterceptor) == 'function') {
         this.templateInterceptor('extend', name, properties);
     }
@@ -222,7 +254,7 @@ ObjectTemplate.extend = function (parentTemplate, name, properties) {
     }
     
     this.setTemplateProperties(template, name, parentTemplate);
-
+    
     // Maintain graph of parent and child templates
     template.__parent__ = parentTemplate;
     parentTemplate.__children__.push(template);
@@ -233,9 +265,10 @@ ObjectTemplate.extend = function (parentTemplate, name, properties) {
 /**
  *  Mix in addition properties into a template
  *
- * @param template to mix into
- * @param properties are the same as for create
- * @return {*} the template with the new properties mixed in
+ * @param {unknown} template to mix into
+ * @param {unknown} properties are the same as for create
+ *
+ * @returns {*} the template with the new properties mixed in
  */
 ObjectTemplate.mixin = function (template, properties) {
     if (typeof(this.templateInterceptor) == 'function') {
@@ -245,6 +278,12 @@ ObjectTemplate.mixin = function (template, properties) {
     return this._createTemplate(template, null, properties, template, template.__name__);
 };
 
+/**
+ * Purpose unknown
+ *
+ * @param {unknown} template unknown
+ * @param {unknown} properties unknown
+ */
 ObjectTemplate.staticMixin = function (template, properties) {
     for (var prop in properties) {
         template[prop] = properties[prop];
@@ -254,12 +293,18 @@ ObjectTemplate.staticMixin = function (template, properties) {
 /**
  * Add a function that will fire on object creation
  *
- * @param injector
+ * @param {unknown} template unknown
+ * @param {unknown} injector unknown
  */
 ObjectTemplate.inject = function (template, injector) {
     template.__injections__.push(injector);
 };
 
+/**
+ * Purpose unknown
+ *
+ * @param {unknown} injector - unknown
+ */
 ObjectTemplate.globalInject = function (injector) {
     this.__injections__.push(injector);
 };
@@ -267,10 +312,14 @@ ObjectTemplate.globalInject = function (injector) {
 /**
  * General function to create templates used by create, extend and mixin
  *
- * @param template - template used for a mixin
- * @param parentTemplate - template used for an extend
- * @param propertiesOrTemplate - properties to be added/mxied in
- * @return {Function}
+ * @param {unknown} mixinTemplate - template used for a mixin
+ * @param {unknown} parentTemplate - template used for an extend
+ * @param {unknown} propertiesOrTemplate - properties to be added/mxied in
+ * @param {unknown} createProperties unknown
+ * @param {unknown} templateName - unknown
+ *
+ * @returns {Function}
+ *
  * @private
  */
 ObjectTemplate._createTemplate = function (mixinTemplate, parentTemplate, propertiesOrTemplate, createProperties, templateName) {
@@ -286,7 +335,7 @@ ObjectTemplate._createTemplate = function (mixinTemplate, parentTemplate, proper
     function F() {}     // Used in case of extend
     
     // Setup variables depending on the type of call (create, extend, mixin)
-    if (mixinTemplate) { // mixin
+    if (mixinTemplate) {        // Mixin
         if (propertiesOrTemplate.isObjectTemplate) {
             for (var prop in propertiesOrTemplate.defineProperties) {
                 mixinTemplate.defineProperties[prop] = propertiesOrTemplate.defineProperties[prop];
@@ -342,7 +391,7 @@ ObjectTemplate._createTemplate = function (mixinTemplate, parentTemplate, proper
             parentTemplate = mixinTemplate.parentTemplate;
         }
     }
-    else {        // extend
+    else {        // Extend
         F.prototype = parentTemplate.prototype;
         templatePrototype = new F();
     }
@@ -351,7 +400,7 @@ ObjectTemplate._createTemplate = function (mixinTemplate, parentTemplate, proper
      * Constructor that will be returned
      */
     var template = function() {
-
+        
         this.__template__ = template;
         
         if (objectTemplate.__transient__) {
@@ -373,7 +422,7 @@ ObjectTemplate._createTemplate = function (mixinTemplate, parentTemplate, proper
         }
         
         this.fromRemote = this.fromRemote || objectTemplate._stashObject(this, template);
-
+        
         this.copyProperties = function (obj) {
             for (var prop in obj) {
                 this[prop] = obj[prop];
@@ -394,9 +443,9 @@ ObjectTemplate._createTemplate = function (mixinTemplate, parentTemplate, proper
             }
         }
         
-        // type system level injection
+        // Type system level injection
         objectTemplate._injectIntoObject(this);
-
+        
         // Template level injections
         for (var ix = 0; ix < template.__injections__.length; ++ix) {
             template.__injections__[ix].call(this, this);
@@ -432,7 +481,7 @@ ObjectTemplate._createTemplate = function (mixinTemplate, parentTemplate, proper
         };
         
         // If we don't have an init function or are a remote creation call parent constructor otherwise call init
-        // function who will be responsible for calling parent constructor to allow for parameter passing.
+        //  function who will be responsible for calling parent constructor to allow for parameter passing.
         if (this.fromRemote || !functionProperties.init || objectTemplate.noInit) {
             if (parentTemplate && parentTemplate.isObjectTemplate) {
                 parentTemplate.call(this);
@@ -465,7 +514,7 @@ ObjectTemplate._createTemplate = function (mixinTemplate, parentTemplate, proper
         this.createCopy = function(creator) {
             return ObjectTemplate.createCopy(this, creator);
         };
-
+        
         function pruneExisting(obj, props) {
             var newProps = {};
             
@@ -478,21 +527,20 @@ ObjectTemplate._createTemplate = function (mixinTemplate, parentTemplate, proper
             return newProps;
         }
     };
-
+    
     template.prototype = templatePrototype;
-
+    
     var createProperty = function (propertyName, propertyValue, properties, createProperties) {
         if (!properties) {
             properties = {};
             properties[propertyName] = propertyValue;
         }
-
-        // record the initialization function
+        
+        // Record the initialization function
         if (propertyName == 'init' && typeof(properties[propertyName]) == 'function') {
             functionProperties.init = [properties[propertyName]];
         }
-        else
-        {
+        else {
             var defineProperty = null;    // defineProperty to be added to defineProperties
             
             // Determine the property value which may be a defineProperties structure or just an initial value
@@ -513,7 +561,7 @@ ObjectTemplate._createTemplate = function (mixinTemplate, parentTemplate, proper
             
             switch (type) {
                 // Figure out whether this is a defineProperty structure (has a constructor of object)
-                case 'object': // or array
+                case 'object': // Or array
                     // Handle remote function calls
                     if (properties[propertyName].body && typeof(properties[propertyName].body) == 'function') {
                         templatePrototype[propertyName] = objectTemplate._setupFunction(propertyName, properties[propertyName].body, properties[propertyName].on, properties[propertyName].validate);
@@ -548,24 +596,24 @@ ObjectTemplate._createTemplate = function (mixinTemplate, parentTemplate, proper
                         defineProperty = {type: Object, value: properties[propertyName], enumerable: true, writable: true};
                         break;
                     }
-
+                    
                 case 'string':
                     defineProperty = {type: String, value: properties[propertyName], enumerable: true, writable: true, isLocal: true};
                     break;
-
+                    
                 case 'boolean':
                     defineProperty = {type: Boolean, value: properties[propertyName], enumerable: true, writable: true, isLocal: true};
                     break;
-
+                    
                 case 'number':
                     defineProperty = {type: Number, value: properties[propertyName], enumerable: true, writable: true, isLocal: true};
                     break;
-
+                    
                 case 'function':
                     templatePrototype[propertyName] = objectTemplate._setupFunction(propertyName, properties[propertyName]);
                     templatePrototype[propertyName].sourceTemplate = templateName;
                     break;
-
+                    
                 case 'getset': // getters and setters
                     descriptor.templateSource = templateName;
                     Object.defineProperty(templatePrototype, propertyName, descriptor);
@@ -580,23 +628,23 @@ ObjectTemplate._createTemplate = function (mixinTemplate, parentTemplate, proper
             }
         }
     };
-
+    
     // Walk through properties and construct the defineProperties hash of properties, the list of
     // objectProperties that have to be reinstantiated and attach functions to the prototype
     for (var propertyName in propertiesOrTemplate) {
         createProperty(propertyName, null, propertiesOrTemplate, createProperties);
     }
-
+    
     template.defineProperties = defineProperties;
     template.objectProperties = objectProperties;
     
     template.getProperties = function(includeVirtual) {
         return ObjectTemplate._getDefineProperties(template, undefined, includeVirtual);
     };
-
+    
     template.functionProperties = functionProperties;
     template.parentTemplate = parentTemplate;
-
+    
     template.extend = function (p1, p2) {
         return objectTemplate.extend.call(objectTemplate, this, p1, p2);
     };
@@ -636,7 +684,11 @@ ObjectTemplate._createTemplate = function (mixinTemplate, parentTemplate, proper
  * Also assigns a unique internal Id so that complex structures with
  * recursive objects can be serialized
  *
- * @param obj - the object to be passed during creation time
+ * @param {unknown} obj - the object to be passed during creation time
+ * @param {unknown} template - unknown
+ *
+ * @returns {unknown}
+ *
  * @private
  */
 ObjectTemplate._stashObject = function(obj, template)
@@ -655,7 +707,8 @@ ObjectTemplate._stashObject = function(obj, template)
 /**
  * Overridden by other Type Systems to inject other elements
  *
- * @param obj - the object to be passed during creation time
+ * @param {unknown} _obj - the object to be passed during creation time
+ *
  * @private
  */
 ObjectTemplate._injectIntoObject = function(_obj) {
@@ -664,7 +717,8 @@ ObjectTemplate._injectIntoObject = function(_obj) {
 /**
  * Overridden by other Type Systems to inject other elements
  *
- * @param obj - the object to be passed during creation time
+ * @param {unknown} _template - the object to be passed during creation time
+ *
  * @private
  */
 ObjectTemplate._injectIntoTemplate = function(_template){
@@ -674,9 +728,11 @@ ObjectTemplate._injectIntoTemplate = function(_template){
  * Overridden by other Type Systems to be able to create remote functions or
  * otherwise intercept function calls
  *
- * @param propertyName is the name of the function
- * @param propertyValue is the function itself
- * @return {*} a new function to be assigned to the object prototype
+ * @param {unknown} _propertyName is the name of the function
+ * @param {unknown} propertyValue is the function itself
+ *
+ * @returns {*} a new function to be assigned to the object prototype
+ *
  * @private
  */
 ObjectTemplate._setupFunction = function(_propertyName, propertyValue) {
@@ -686,16 +742,17 @@ ObjectTemplate._setupFunction = function(_propertyName, propertyValue) {
 /**
  * Used by template setup to create an property descriptor for use by the constructor
  *
- * @param propertyName is the name of the property
- * @param defineProperty is the property descriptor passed to the template
- * @param objectProperties is all properties that will be processed manually.  A new property is
+ * @param {unknown} propertyName is the name of the property
+ * @param {unknown} defineProperty is the property descriptor passed to the template
+ * @param {unknown} objectProperties is all properties that will be processed manually.  A new property is
  *                         added to this if the property needs to be initialized by value
- * @param defineProperties is all properties that will be passed to Object.defineProperties
+ * @param {unknown} defineProperties is all properties that will be passed to Object.defineProperties
  *                         A new property will be added to this object
+ *
  * @private
  */
 ObjectTemplate._setupProperty = function(propertyName, defineProperty, objectProperties, defineProperties) {
-    //determine whether value needs to be re-initialized in constructor
+    // Determine whether value needs to be re-initialized in constructor
     var value   = defineProperty.value;
     var byValue = value && typeof(value) != 'number' && typeof(value) != 'string';
     
@@ -714,13 +771,13 @@ ObjectTemplate._setupProperty = function(propertyName, defineProperty, objectPro
     defineProperty.toServer = false;
     defineProperty.toClient = false;
     defineProperties[propertyName] = defineProperty;
-
+    
     // Add getters and setters
     if (defineProperty.get || defineProperty.set) {
         var userSetter = defineProperty.set;
         
         defineProperty.set = (function() {
-            // use a closure to record the property name which is not passed to the setter
+            // Use a closure to record the property name which is not passed to the setter
             var prop = propertyName;
             
             return function (value) {
@@ -733,11 +790,11 @@ ObjectTemplate._setupProperty = function(propertyName, defineProperty, objectPro
                 }
             }
         })();
-
+        
         var userGetter = defineProperty.get;
         
         defineProperty.get = (function () {
-            // use closure to record property name which is not passed to the getter
+            // Use closure to record property name which is not passed to the getter
             var prop = propertyName;
             
             return function () {
@@ -763,13 +820,13 @@ ObjectTemplate._setupProperty = function(propertyName, defineProperty, objectPro
 };
 
 /**
- *
  * Clone an object created from an ObjectTemplate
  * Used only within supertype (see copyObject for general copy)
  *
  * @param obj is the source object
  * @param template is the template used to create the object
- * @return {*} a copy of the object
+ *
+ * @returns {*} a copy of the object
  */
 // Function to clone simple objects using ObjectTemplate as a guide
 ObjectTemplate.clone = function (obj, template)
@@ -819,15 +876,46 @@ ObjectTemplate.clone = function (obj, template)
     }
 };
 
+/**
+ * Purpose unknown
+ *
+ * @param {unknown} obj unknown
+ * @param {unknown} creator unknown
+ *
+ * @returns {unknown}
+ */
 ObjectTemplate.createCopy = function (obj, creator) {
     return this.fromPOJO(obj, obj.__template__, null, null, undefined, null, null, creator);
 };
 
+/**
+ * Purpose unknown
+ *
+ * @param {unknown} str unknown
+ * @param {unknown} template unknown
+ * @param {unknown} idQualifier unknown
+ *
+ * @returns {unknown}
+ */
 ObjectTemplate.fromJSON = function (str, template, idQualifier)
 {
     return this.fromPOJO(JSON.parse(str), template, null, null, idQualifier);
 };
 
+/**
+ * Purpose unknown
+ *
+ * @param {unknown} pojo unknown
+ * @param {unknown} template unknown
+ * @param {unknown} defineProperty unknown
+ * @param {unknown} idMap unknown
+ * @param {unknown} idQualifier unknown
+ * @param {unknown} parent unknown
+ * @param {unknown} prop unknown
+ * @param {unknown} creator unknown
+ *
+ * @returns {unknown}
+ */
 ObjectTemplate.fromPOJO = function (pojo, template, defineProperty, idMap, idQualifier, parent, prop, creator)
 {
     function getId(id) {
@@ -842,7 +930,7 @@ ObjectTemplate.fromPOJO = function (pojo, template, defineProperty, idMap, idQua
     if (!idMap) {
         idMap = {};
     }
-
+    
     if (!pojo.__id__) {
         return;
     }
@@ -873,14 +961,14 @@ ObjectTemplate.fromPOJO = function (pojo, template, defineProperty, idMap, idQua
     }
     
     idMap[getId(pojo.__id__.toString())] = obj;
-
+    
     // Go through all the properties and transfer them to newly created object
     var props = obj.__template__.getProperties();
     
     for (var propb in props) {
         var defineProp = props[propb];
         var type = defineProp.type;
-    
+        
         if (type && pojo[propb] == null) {
             obj[propb] = null;
         }
@@ -939,7 +1027,7 @@ ObjectTemplate.fromPOJO = function (pojo, template, defineProperty, idMap, idQua
     if (!creator && pojo._id) {
         obj._id = getId(pojo._id);
     }
-
+    
     function propXfer(prop) {
         if (pojo[prop]) {
             obj[prop] = pojo[prop];
@@ -959,6 +1047,8 @@ ObjectTemplate.fromPOJO = function (pojo, template, defineProperty, idMap, idQua
 
 /**
  * Abstract function for benefit of Semotus
+ *
+ * @param {unknown} cb unknown
  */
 ObjectTemplate.withoutChangeTracking = function (cb) {
     cb();
@@ -968,7 +1058,10 @@ ObjectTemplate.withoutChangeTracking = function (cb) {
  * Convert an object to JSON, stripping any recursive object references so they can be
  * reconstituted later
  *
- * @param obj
+ * @param {unknown} obj unknown
+ * @param {unknown} cb unknown
+ *
+ * @returns {unknown}
  */
 ObjectTemplate.toJSONString = function (obj, cb) {
     var idMap = [];
@@ -1001,9 +1094,9 @@ ObjectTemplate.toJSONString = function (obj, cb) {
  * declared list in the subClasses define property or walking through
  * the subclasses of the declared template
  *
- * @param template
- * @param objId
- * @param defineProperty
+ * @param {unknown} template unknown
+ * @param {unknown} objId unknown
+ * @param {unknown} defineProperty unknown
  * @returns {*}
  * @private
  */
@@ -1039,8 +1132,8 @@ ObjectTemplate._resolveSubClass = function (template, objId, defineProperty)
  * Walk recursively through extensions of template via __children__
  * looking for a name match
  *
- * @param template
- * @param templateName
+ * @param {unknown} template unknown
+ * @param {unknown} templateName unknown
  * @returns {*}
  * @private
  */
@@ -1063,8 +1156,10 @@ ObjectTemplate._findSubClass = function (template, templateName) {
 /**
  * Return the highest level template
  *
- * @param template
+ * @param {unknown} template unknown
+ *
  * @returns {*}
+ *
  * @private
  */
 ObjectTemplate._getBaseClass = function(template) {
@@ -1080,9 +1175,10 @@ ObjectTemplate._getBaseClass = function(template) {
  * manage the caching of that object (used by derivative type systems).  It
  * preserves the original id of an object
  *
- * @param type of object
- * @param objId and id (if present)
- * @return {*}
+ * @param {unknown} template of object
+ * @param {unknown} objId and id (if present)
+ * @param {unknown} defineProperty unknown
+ * @returns {*}
  * @private
  */
 ObjectTemplate._createEmptyObject = function(template, objId, defineProperty)
@@ -1111,9 +1207,9 @@ ObjectTemplate._createEmptyObject = function(template, objId, defineProperty)
  * Looks up a property in the defineProperties saved with the template cascading
  * up the prototype chain to find it
  *
- * @param prop is the property being sought
- * @param template is the template used to create the object containing the property
- * @return {*} the "defineProperty" structure for the property
+ * @param {unknown} prop is the property being sought
+ * @param {unknown} template is the template used to create the object containing the property
+ * @returns {*} the "defineProperty" structure for the property
  * @private
  */
 ObjectTemplate._getDefineProperty = function(prop, template)
@@ -1129,10 +1225,12 @@ ObjectTemplate._getDefineProperty = function(prop, template)
 };
 
 /**
- * returns a hash of all properties including those inherited
+ * Returns a hash of all properties including those inherited
  *
- * @param template is the template used to create the object containing the property
- * @return {*} an associative array of each "defineProperty" structure for the property
+ * @param {unknown} template is the template used to create the object containing the property
+ * @param {unknown} returnValue unknown
+ * @param {unknown} includeVirtual unknown
+ * @returns {*} an associative array of each "defineProperty" structure for the property
  * @private
  */
 ObjectTemplate._getDefineProperties = function(template, returnValue, includeVirtual)
@@ -1140,7 +1238,7 @@ ObjectTemplate._getDefineProperties = function(template, returnValue, includeVir
     if (!returnValue) {
         returnValue = {};
     }
-
+    
     if (template.defineProperties) {
         for (var prop in template.defineProperties) {
             if (includeVirtual || !template.defineProperties[prop].isVirtual) {
@@ -1152,13 +1250,13 @@ ObjectTemplate._getDefineProperties = function(template, returnValue, includeVir
     if (template.parentTemplate) {
         this._getDefineProperties(template.parentTemplate, returnValue, includeVirtual);
     }
-
+    
     return returnValue;
 };
 
 /**
  * A function to clone the Type System
- * @return {F}
+ * @returns {F}
  * @private
  */
 ObjectTemplate._createObject = function () {
@@ -1169,14 +1267,18 @@ ObjectTemplate._createObject = function () {
     return newF;
 };
 
-
+/**
+ * Purpose unknown
+ * @param {unknown} context unknown
+ * @returns {unknown}
+ */
 ObjectTemplate.createLogger = function (context) {
     var levelToStr = {60: 'fatal', 50: 'error', 40: 'warn', 30: 'info', 20: 'debug', 10: 'trace'};
     var strToLevel = {'fatal':60, 'error':50, 'warn':40, 'info':30, 'debug':20, 'trace':10};
     
     return createLogger(context);
-
-    // return a new logger object that has our api and a context
+    
+    // Return a new logger object that has our api and a context
     function createLogger () {
         var logger = {
             context: {},
@@ -1202,7 +1304,7 @@ ObjectTemplate.createLogger = function (context) {
         
         return logger;
     }
-
+    
     // Parse log levels such as warn.activity
     function setLevel(level) {
         var levels = level.split(';');
@@ -1224,7 +1326,7 @@ ObjectTemplate.createLogger = function (context) {
             }
         }
     }
-
+    
     // Logging is enabled if either the level threshold is met or the granular level matches
     function isEnabled(level, obj) {
         level = strToLevel[level];
@@ -1241,16 +1343,16 @@ ObjectTemplate.createLogger = function (context) {
             }
         }
     }
-
-    // log all arguments assuming the first one is level and the second one might be an object (similar to banyan)
+    
+    // Log all arguments assuming the first one is level and the second one might be an object (similar to banyan)
     function log () {
         var msg = '';
         var obj = {time: (new Date()).toISOString(), msg: ''};
-    
+        
         for (var prop in this.context) {
             obj[prop] = this.context[prop];
         }
-    
+        
         for (var ix = 0; ix < arguments.length; ++ix) {
             var arg = arguments[ix];
         
@@ -1290,11 +1392,11 @@ ObjectTemplate.createLogger = function (context) {
             return obj != null && typeof(obj) == 'object' && !(obj instanceof Array) && !(obj instanceof Date) && !(obj instanceof Error);
         }
     }
-
+    
     function startContext (context) {
         this.context = context;
     }
-
+    
     // Save the properties in the context and return a new object that has the properties only so they can be cleared
     function setContextProps (context) {
         var reverse = {};
@@ -1313,15 +1415,15 @@ ObjectTemplate.createLogger = function (context) {
             delete this.context[prop];
         }
     }
-
+    
     // Create a new logger and copy over it's context
     function createChildLogger(context) {
         var child = {};
-    
+        
         for (var prop in this) {
             child[prop] = this[prop];
         }
-    
+        
         child.context = context || {};
     
         for (var proper in this.context) {
@@ -1330,7 +1432,7 @@ ObjectTemplate.createLogger = function (context) {
         
         return child;
     }
-
+    
     function formatDateTime(date) {
         return  f(2, (date.getMonth() + 1), '/') + f(2, date.getDate(), '/') + f(4, date.getFullYear(), ' ') +
             f(2, date.getHours(), ':') + f(2, date.getMinutes(), ':') + f(2, date.getSeconds(), ':') +
@@ -1344,11 +1446,11 @@ ObjectTemplate.createLogger = function (context) {
             return d + (s || '');
         }
     }
-
+    
     function sendToLog(level, json) {
         console.log(this.prettyPrint(level, json));     // eslint-disable-line no-console
     }
-
+    
     function prettyPrint(level, json) {
         var split = this.split(json, {time: 1, msg: 1, level: 1, name: 1});
         
@@ -1378,7 +1480,7 @@ ObjectTemplate.createLogger = function (context) {
             return '';
         }
     }
-
+    
     function split (json, props) {
         var a = {};
         var b = {};
