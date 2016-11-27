@@ -1,8 +1,5 @@
 var expect = require('chai').expect;
-var Q = require('q');
 var ObjectTemplate = require('../index.js');
-
-
 
 describe('Composing Templates', function () {
     it ('has extended values', function () {
@@ -68,13 +65,5 @@ describe('Composing Templates', function () {
         expect((new FinalTemplate()).templatePartial()).to.equal('TemplatePartial');
         expect((new FinalTemplate()).templatePartialBase()).to.equal('TemplatePartialBase');
 
-
     });
 });
-
-
-
-
-
-
-

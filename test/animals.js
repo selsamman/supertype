@@ -1,52 +1,52 @@
 var expect = require('chai').expect;
-var Q = require('q');
 var ObjectTemplate = require('../index.js');
 
 /* Teacher Student Example */
-
 BaseTemplate = ObjectTemplate.create('BaseTemplate',
-    {
-        name: {type: String},
-        isMammal: {type: Boolean, value: true},
-        legs: {type: Number}
-    });
+{
+    name: {type: String},
+    isMammal: {type: Boolean, value: true},
+    legs: {type: Number}
+});
+
 BaseTemplate.mixin({
     legs: {type: Number, value: 2} // Make sure duplicate props work
 });
+
 Lion = BaseTemplate.extend('Lion',
-    {
-        init: function () {
-            BaseTemplate.call(this);
-            this.name = 'Lion';
-            this.legs = 4;
-        },
-        canRoar: function () {return true;}
-    });
+{
+    init: function init() {
+        BaseTemplate.call(this);
+        this.name = 'Lion';
+        this.legs = 4;
+    },
+    canRoar: function canRoar() {return true;}
+});
 
 Bear = BaseTemplate.extend('Bear',
-    {
-        init: function () {
-            BaseTemplate.call(this);
-            this.name = 'Bear';
-        },
-        canHug: function () {return true;}
-    });
+{
+    init: function init() {
+        BaseTemplate.call(this);
+        this.name = 'Bear';
+    },
+    canHug: function canHug() {return true;}
+});
 
 Ark = ObjectTemplate.create('Ark',
-    {
-        animals: {type: Array, of: BaseTemplate, value: []},
-        board: function (animal) {
-            animal.ark = this;
-            this.animals.push(animal);
-        }
-    });
+{
+    animals: {type: Array, of: BaseTemplate, value: []},
+    board: function (animal) {
+        animal.ark = this;
+        this.animals.push(animal);
+    }
+});
+
 BaseTemplate.mixin(
-    {
-        ark:    {type: Ark}
-    });
+{
+    ark:    {type: Ark}
+});
 
 describe('Freeze Dried Arks', function () {
-
     var ark1;
     var ark2;
 
@@ -74,8 +74,7 @@ describe('Freeze Dried Arks', function () {
         done();
     });
 
-    it ('save and restore the arc', function (done)
-	{
+    it ('save and restore the arc', function (done) {
         var serialArk1 = ark1.toJSONString();
         var serialArk2 = ark2.toJSONString();
 
@@ -101,11 +100,13 @@ describe('Freeze Dried Arks', function () {
     it ('can log', function () {
         var date = new Date('11/11/2010');
         var output = '';
-        ObjectTemplate.logger.sendToLog = function (level, obj) {
+
+        ObjectTemplate.logger.sendToLog = function sendToLog(level, obj) {
             var str = ObjectTemplate.logger.prettyPrint(level, obj).replace(/.*: /, '');
             console.log(str);
             output += str.replace(/[\r\n ]/g, '');
         };
+
         ObjectTemplate.logger.startContext({name: 'supertype'});
         ObjectTemplate.logger.warn({foo: 'bar1'}, 'Yippie');
         var context = ObjectTemplate.logger.setContextProps({permFoo: 'permBar1'});
@@ -130,14 +131,5 @@ describe('Freeze Dried Arks', function () {
         var result = '(foo="bar1")(permFoo="permBar1"foo="bar2")(foo="bar3")(permFoo="childFoo"foo="bar4")(foo="bar5")(foo="bar6"woopie={"yea":true,"oh":"2010-11-11T05:00:00.000Z"})(foo="bar6"woopie={"yea":true,"oh":"2010-11-11T05:00:00.000Z"})';
 
         expect(output).to.equal(result);
-
     });
-
 });
-
-
-
-
-
-
-

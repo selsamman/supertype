@@ -1,8 +1,5 @@
 var expect = require('chai').expect;
-var Q = require('q');
 var ObjectTemplate = require('../index.js');
-
-
 
 describe('Extended Templates', function () {
     it ('has extended values', function () {
@@ -14,7 +11,7 @@ describe('Extended Templates', function () {
                 str:        {type: String, value: 'Base'},
                 obj:        {type: Object, value: {type: 'Base'}},
                 date:       {type: Date, value: new Date(100)},
-                enum:		{type: String, values: ['b1'], descriptions: {'b1': 'BaseTemplate1'}}
+                enum:       {type: String, values: ['b1'], descriptions: {'b1': 'BaseTemplate1'}}
             });
 
         var ExtendedTemplate1 = BaseTemplate1.extend('ExtendedTemplate1',
@@ -70,9 +67,9 @@ describe('Extended Templates', function () {
 
         var ExtendedTemplate4 = ExtendedTemplate3.extend('ExtendedTemplate4',
             {
-                enum:		{type: String,
-					values: function () {return ['b3'];},
-					descriptions: function () {return {'b3': this.str};}}
+                enum:    {type: String,
+                    values: function () {return ['b3'];},
+                    descriptions: function () {return {'b3': this.str};}}
             });
 
         expect((new ExtendedTemplate1()).boolTrue).to.equal(false);
@@ -101,13 +98,5 @@ describe('Extended Templates', function () {
         expect((new BaseTemplate1()).__prop__('enum').descriptions['b1']).to.equal('BaseTemplate1');
         expect((new ExtendedTemplate4()).__descriptions__('enum')['b3']).to.equal('Extended');
 
-
     });
 });
-
-
-
-
-
-
-

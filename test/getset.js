@@ -30,8 +30,7 @@ var ExtendedPlease = Please.extend('ExtendedPlease',
     });
 
 describe('Getters and setters', function () {
-
-
+    
     it ('work in base classes', function (done) {
         var t1 = new Please();
         expect(t1.please).to.equal('init please');
@@ -61,13 +60,5 @@ describe('Getters and setters', function () {
         expect(t1.__whole).to.equal(undefined);
         done();
     });
-
-
+    
 });
-
-
-
-
-
-
-
