@@ -57,7 +57,7 @@ module.exports = exports = {
         "quotes": [ERROR, "single", { "avoidEscape": true }],
         
         // Medium Risk
-        "eqeqeq": OFF,
+        "eqeqeq": ERROR,
         "no-nested-ternary": ERROR,
         "no-new-object": ERROR,
         "no-eval": ERROR,
@@ -72,12 +72,12 @@ module.exports = exports = {
         "no-useless-rename": ERROR,
         
         // High Risk
-        "strict": OFF,
-        "no-loop-func": OFF,
-        "max-len": [OFF, 120],
-        "max-lines": [OFF, {"max": 600, "skipBlankLines": true, "skipComments": true}],
-        "max-params": [OFF, 6],
-        "max-statements": [OFF, 35],
-        "max-depth": [OFF, 5]
+        "strict": ERROR,
+        "no-loop-func": ERROR,
+        "max-len": [ERROR, 120],
+        "max-lines": [ERROR, {"max": 600, "skipBlankLines": true, "skipComments": true}],
+        "max-params": [ERROR, 6],
+        "max-statements": [ERROR, 35],
+        "max-depth": [ERROR, 5]
     }
 };
