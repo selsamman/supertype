@@ -59,10 +59,10 @@ it('can clone', function () {
         case 'Main.subsA':
             return undefined;
         }
-        
+
         return null;    // normal create process
     });
-    
+
     expect(main2.subA).to.equal(null);
     expect(main2.subB.name).to.equal('mainOneB');
     expect(main2.subsB[0].name).to.equal('mainManyB');
