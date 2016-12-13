@@ -550,13 +550,13 @@ ObjectTemplate._createTemplate = function createTemplate (mixinTemplate, parentT
                 descriptor = Object.getOwnPropertyDescriptor(properties, propertyName);
             }
 
-            var type = typeof(properties[propertyName]);
+            var type = 'null';
 
             if (descriptor.get || descriptor.set) {
                 type = 'getset';
             }
-            else if (properties[propertyName] == null) {
-                type = 'null';
+            else if (properties[propertyName] !== null) {
+                type = typeof(properties[propertyName]);
             }
 
             switch (type) {
