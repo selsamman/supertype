@@ -313,7 +313,7 @@ ObjectTemplate.globalInject = function globalInject(injector) {
  * Create the template if it needs to be created
  * @param [unknown} template to be created
  */
-ObjectTemplate.createIfNeeded = function createTemplate (template)
+ObjectTemplate.createIfNeeded = function createTemplate (template, thisObj)
 {
     if (template.__createParameters__) {
         var createParameters = template.__createParameters__
@@ -321,6 +321,10 @@ ObjectTemplate.createIfNeeded = function createTemplate (template)
             var params = createParameters[ix];
             this._createTemplate(params[0], params[1], params[2], params[3], params[4], true);
             template.__createParameters__ = undefined;
+        }
+        if (thisObj) {
+            //var copy = new template();
+            thisObj.__proto__ = template.prototype;
         }
     }
 }
@@ -355,6 +359,7 @@ ObjectTemplate._createTemplate = function createTemplate (mixinTemplate, parentT
         if (mixinTemplate) {        // Mixin
             this.createIfNeeded(mixinTemplate);
             if (propertiesOrTemplate.isObjectTemplate) {
+                this.createIfNeeded(propertiesOrTemplate);
                 for (var prop in propertiesOrTemplate.defineProperties) {
                     mixinTemplate.defineProperties[prop] = propertiesOrTemplate.defineProperties[prop];
                 }
@@ -420,7 +425,7 @@ ObjectTemplate._createTemplate = function createTemplate (mixinTemplate, parentT
      */
     var template = this.__dictionary__[templateName] || function template() {
 
-        objectTemplate.createIfNeeded(template);
+        objectTemplate.createIfNeeded(template, this);
 
         this.__template__ = template;
 
@@ -503,7 +508,7 @@ ObjectTemplate._createTemplate = function createTemplate (mixinTemplate, parentT
 
         // If we don't have an init function or are a remote creation call parent constructor otherwise call init
         //  function who will be responsible for calling parent constructor to allow for parameter passing.
-        if (this.fromRemote || !functionProperties.init || objectTemplate.noInit) {
+        if (this.fromRemote || !template.functionProperties.init || objectTemplate.noInit) {
             if (parentTemplate && parentTemplate.isObjectTemplate) {
                 parentTemplate.call(this);
             }
@@ -548,6 +553,8 @@ ObjectTemplate._createTemplate = function createTemplate (mixinTemplate, parentT
             return newProps;
         }
     };
+
+    template.isObjectTemplate = true;
 
     template.extend = function extend(p1, p2) {
         return objectTemplate.extend.call(objectTemplate, this, p1, p2);
@@ -694,7 +701,6 @@ ObjectTemplate._createTemplate = function createTemplate (mixinTemplate, parentT
     template.parentTemplate = parentTemplate;
 
 
-    template.isObjectTemplate = true;
     template.createProperty = createProperty;
 
     template.props = {};
