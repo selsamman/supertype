@@ -624,6 +624,13 @@ ObjectTemplate._createTemplate = function createTemplate (mixinTemplate, parentT
 
             // If a defineProperty to be added
             if (defineProperty) {
+                if (typeof descriptor.toClient !== 'undefined') {
+                    defineProperty.toClient = descriptor.toClient;
+                }
+                if (typeof descriptor.toServer !== 'undefined') {
+                    defineProperty.toServer = descriptor.toServer;
+                }
+
                 objectTemplate._setupProperty(propertyName, defineProperty, objectProperties, defineProperties, parentTemplate, createProperties);
                 defineProperty.sourceTemplate = templateName;
             }
