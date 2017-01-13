@@ -12,11 +12,16 @@ var SubOne = ObjectTemplate.create('SubOne', {
     init: function (name) {this.name = name;}
 });
 
+var SubOneA = SubOne.extend("SubOneA", {});
+var SubOneB = SubOne.extend("SubOneB", {});
+
 var SubMany = ObjectTemplate.create('SubMany', {
     main: {type: Main},
     name: {type: String, value: ''},
     init: function (name) {this.name = name;}
 });
+var SubManyA = SubMany.extend("SubManyA", {});
+var SubManyB = SubMany.extend("SubManyB", {});
 
 var SubManyExtended = SubMany.extend('SubManyExtended', {});
 
@@ -36,11 +41,11 @@ Main.mixin({
 });
 
 var main = new Main('main');
-main.subA = new SubOne('mainOneA');
-main.subB = new SubOne('mainOneB');
+main.subA = new SubOneA('mainOneA');
+main.subB = new SubOneB('mainOneB');
 main.addSubManyA(new SubMany('mainManyA'));
-main.addSubManyB(new SubMany('mainManyB'));
-main.addSubManyB(new SubManyExtended('mainManyExtendedB'));
+main.addSubManyB(new SubManyA('mainManyBA'));
+main.addSubManyB(new SubManyB('mainManyBB'));
 
 it('can clone', function () {
     var relationship;
@@ -65,7 +70,9 @@ it('can clone', function () {
 
     expect(main2.subA).to.equal(null);
     expect(main2.subB.name).to.equal('mainOneB');
-    expect(main2.subsB[0].name).to.equal('mainManyB');
+    expect(main2.subsB[0].name).to.equal('mainManyA');
+    expect(main2.subsB[1].name).to.equal('mainManyBA');
+    expect(main2.subsB[2].name).to.equal('mainManyBB');
     expect(main2.subsA.length).to.equal(0); // Because we
     expect(main2.subsB.length).to.equal(2); // Because we
     expect(main2.subA).to.equal(null);
