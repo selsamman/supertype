@@ -47,7 +47,8 @@ ObjectTemplate.performInjections = function performInjections() {
 /**
  * Purpose unknown
  */
-ObjectTemplate.init = function init() {
+ObjectTemplate.init = function () {
+    this.__templateUsage__ = {}
     this.__injections__ = [];
     this.__dictionary__ = {};
     this.__anonymousId__ = 1;
@@ -121,7 +122,7 @@ ObjectTemplate.getTemplateProperties = function getTemplateProperties(props) {
                 if (ret == null) {
                     ret = processProp(prop, ruleSet);
                 }
-            });
+            })
         }
         else {
             ret = prop;
@@ -427,6 +428,13 @@ ObjectTemplate._createTemplate = function createTemplate (mixinTemplate, parentT
 
         objectTemplate.createIfNeeded(template, this);
 
+        objectTemplate.__templateUsage__[template.__name__] = true;
+        var parent = template.__parent__;
+        while (parent) {
+            objectTemplate.__templateUsage__[parent.__name__] = true;
+            var parent = parent.__parent__;
+        }
+
         this.__template__ = template;
 
         if (objectTemplate.__transient__) {
@@ -678,6 +686,13 @@ ObjectTemplate._createTemplate = function createTemplate (mixinTemplate, parentT
 
             // If a defineProperty to be added
             if (defineProperty) {
+                if (typeof descriptor.toClient !== 'undefined') {
+                    defineProperty.toClient = descriptor.toClient;
+                }
+                if (typeof descriptor.toServer !== 'undefined') {
+                    defineProperty.toServer = descriptor.toServer;
+                }
+
                 objectTemplate._setupProperty(propertyName, defineProperty, objectProperties, defineProperties, parentTemplate, createProperties);
                 defineProperty.sourceTemplate = templateName;
             }
@@ -1015,12 +1030,13 @@ ObjectTemplate.fromPOJO = function fromPOJO(pojo, template, defineProperty, idMa
                     obj[propb] = [];
 
                     for (var ix = 0; ix < pojo[propb].length; ++ix) {
+                        var atype = pojo[propb][ix].__template__ || defineProp.of;
                         if (pojo[propb][ix]) {
                             if (pojo[propb][ix].__id__ && idMap[getId(pojo[propb][ix].__id__.toString())]) {
                                 obj[propb][ix] = idMap[getId(pojo[propb][ix].__id__.toString())];
                             }
                             else {
-                                obj[propb][ix] = this.fromPOJO(pojo[propb][ix], defineProp.of, defineProp, idMap, idQualifier, obj, propb, creator);
+                                obj[propb][ix] = this.fromPOJO(pojo[propb][ix], atype, defineProp, idMap, idQualifier, obj, propb, creator);
                             }
                         }
                         else {
@@ -1033,11 +1049,12 @@ ObjectTemplate.fromPOJO = function fromPOJO(pojo, template, defineProperty, idMa
                 }
             }
             else if (type.isObjectTemplate) { // Templated objects
+                var otype = pojo[propb].__template__ || type;
                 if (pojo[propb].__id__ && idMap[getId(pojo[propb].__id__.toString())]) {
                     obj[propb] = idMap[getId(pojo[propb].__id__.toString())];
                 }
                 else {
-                    obj[propb] = this.fromPOJO(pojo[propb], type, defineProp, idMap, idQualifier, obj, propb, creator);
+                    obj[propb] = this.fromPOJO(pojo[propb], otype, defineProp, idMap, idQualifier, obj, propb, creator);
                 }
             }
             else if (type == Date) {
