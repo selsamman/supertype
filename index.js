@@ -322,9 +322,9 @@ ObjectTemplate.createIfNeeded = function createTemplate (template, thisObj)
             var params = createParameters[ix];
             template.__createParameters__ = undefined;
             this._createTemplate(params[0], params[1], params[2], params[3], params[4], true);
-            if (template._injectProperties) {
-                template._injectProperties();
-            }
+        }
+        if (template._injectProperties) {
+            template._injectProperties();
         }
         if (thisObj) {
             //var copy = new template();
@@ -358,7 +358,7 @@ ObjectTemplate._createTemplate = function createTemplate (mixinTemplate, parentT
 
     function F () {}     // Used in case of extend
 
-    if (this.deferredCreate) {
+    if (!this.lazyTemplateLoad) {
         createTemplateNow = true;
     }
     // Setup variables depending on the type of call (create, extend, mixin)
