@@ -320,8 +320,11 @@ ObjectTemplate.createIfNeeded = function createTemplate (template, thisObj)
         var createParameters = template.__createParameters__
         for (var ix = 0; ix < createParameters.length; ++ix) {
             var params = createParameters[ix];
-            this._createTemplate(params[0], params[1], params[2], params[3], params[4], true);
             template.__createParameters__ = undefined;
+            this._createTemplate(params[0], params[1], params[2], params[3], params[4], true);
+            if (template._injectProperties) {
+                template._injectProperties();
+            }
         }
         if (thisObj) {
             //var copy = new template();
@@ -343,7 +346,7 @@ ObjectTemplate.createIfNeeded = function createTemplate (template, thisObj)
  *
  * @private
  */
-ObjectTemplate._createTemplate = function createTemplate (mixinTemplate, parentTemplate, propertiesOrTemplate, createProperties, templateName, doItNow) {
+ObjectTemplate._createTemplate = function createTemplate (mixinTemplate, parentTemplate, propertiesOrTemplate, createProperties, templateName, createTemplateNow) {
     // We will return a constructor that can be used in a new function
     // that will call an init() function found in properties, define properties using Object.defineProperties
     // and make copies of those that are really objects
@@ -355,8 +358,11 @@ ObjectTemplate._createTemplate = function createTemplate (mixinTemplate, parentT
 
     function F () {}     // Used in case of extend
 
+    if (this.deferredCreate) {
+        createTemplateNow = true;
+    }
     // Setup variables depending on the type of call (create, extend, mixin)
-    if (doItNow) {
+    if (createTemplateNow) {
         if (mixinTemplate) {        // Mixin
             this.createIfNeeded(mixinTemplate);
             if (propertiesOrTemplate.isObjectTemplate) {
@@ -577,14 +583,21 @@ ObjectTemplate._createTemplate = function createTemplate (mixinTemplate, parentT
     };
 
     template.fromPOJO = function fromPOJO(pojo) {
+        objectTemplate.createIfNeeded(template);
         return objectTemplate.fromPOJO(pojo, template);
     };
 
     template.fromJSON = function fromJSON(str, idPrefix) {
+        objectTemplate.createIfNeeded(template);
         return objectTemplate.fromJSON(str, template, idPrefix);
     };
 
-    if (!doItNow) {
+    template.getProperties = function getProperties(includeVirtual) {
+        objectTemplate.createIfNeeded(template);
+        return ObjectTemplate._getDefineProperties(template, undefined, includeVirtual);
+    };
+
+    if (!createTemplateNow) {
         template.__createParameters__ = template.__createParameters__ || [];
         template.__createParameters__.push([mixinTemplate, parentTemplate, propertiesOrTemplate, createProperties, templateName]);
         return template;
@@ -707,10 +720,6 @@ ObjectTemplate._createTemplate = function createTemplate (mixinTemplate, parentT
 
     template.defineProperties = defineProperties;
     template.objectProperties = objectProperties;
-
-    template.getProperties = function getProperties(includeVirtual) {
-        return ObjectTemplate._getDefineProperties(template, undefined, includeVirtual);
-    };
 
     template.functionProperties = functionProperties;
     template.parentTemplate = parentTemplate;
