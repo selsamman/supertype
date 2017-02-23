@@ -1676,11 +1676,11 @@ ObjectTemplate.supertypeClass = function (target, props) {
                 for (var prop in template.prototype.__deferredType__) {
                     var defineProperty = template.defineProperties[prop];
                     if (defineProperty) {
-                        if (typeof defineProperty.type == 'function') {
-                            defineProperty.type = defineProperty.type();
-                        }
-                        if (typeof defineProperty.of == 'function') {
-                            defineProperty.of = defineProperty.of();
+                        var type = template.prototype.__deferredType__[prop]();
+                        if (typeof defineProperty.type === Array) {
+                            defineProperty.of = type;
+                        } else {
+                            defineProperty.type = type;
                         }
                     }
                 }
@@ -1738,13 +1738,13 @@ ObjectTemplate.property = function (props) {
         target.__amorphicprops__ = target.__amorphicprops__ || {}
         target.__amorphicprops__[targetKey] = props;
         var type = props.type || Reflect.getMetadata('design:type', target, targetKey);
-        if (typeof type === 'undefined' || ('of' in props && typeof(props.of) == 'undefined')) {
+        if (typeof props.getType === 'function') {
+            target.__deferredType__ = target.__deferredType__ || {};
+            target.__deferredType__[targetKey] = props.getType;
+            delete props.getType;
+        } else if (typeof type === 'undefined' || ('of' in props && typeof(props.of) == 'undefined')) {
             target.__exceptions__ = target.__exceptions__ || {};
             target.__exceptions__[targetKey] = true;
-        }
-        if (typeof type === 'function' || ('of' in props && typeof(props.of) == 'function')) {
-            target.__deferredType__ = target.__deferredType__ || {};
-            target.__deferredType__[targetKey] = true;
         }
         target.__amorphicprops__[targetKey].type  = type;
 };

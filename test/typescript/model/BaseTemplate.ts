@@ -7,6 +7,6 @@ export class BaseTemplate extends Supertype
     name: string;
     isMammal: boolean = true;
     legs: Number = 2;
-    @property({type: () => {return Ark}})
+    @property({getType: () => {return Ark}})
     ark:    Ark;
 };
