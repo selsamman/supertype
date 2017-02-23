@@ -21,6 +21,15 @@
 /*
  * ObjectTemplate - n Type System with Benefits
  */
+(function (root, factory) {
+    if (typeof define === "function" && define.amd) {
+        define([], factory);
+    } else if (typeof exports === "object") {
+        module.exports = factory();
+    } else {
+        root.ObjectTemplate = factory();
+    }
+}(this, function () {
 
 function ObjectTemplate() {
 }
@@ -1558,6 +1567,154 @@ ObjectTemplate.createLogger = function createLogger(context) {
 
 ObjectTemplate.init();
 
-if (typeof(module) != 'undefined') {
-    module.exports = ObjectTemplate;
+ObjectTemplate.supertypeClass = function (target, props) {
+
+    target.isObjectTemplate = true;
+    target.__injections__ = [];
+    target.__templateProps__ = props;
+    target.__objectTemplate__ = ObjectTemplate;
+    var createProps = ObjectTemplate.getTemplateProperties(props || {});
+    target.__toClient__ = createProps.toClient;
+    target.__toServer__ = createProps.toClient;
+    target.__shadowChildren__ = [];
+
+    // Push an array of template references (we can't get at their names now).  Later we will
+    // use this to construct __dictionary__
+    ObjectTemplate.__templates__ = ObjectTemplate.__templates__ || [];
+    ObjectTemplate.__templates__.push(target);
+
+
+    // We can never reference template functions at compile time which is when this decorator is executed
+    // Therefore we have to setup getters for properties that need access to the template functions so
+    // that we can ensure they are fully resolved before accessing them
+    Object.defineProperty(target, 'defineProperties', {get: defineProperties});
+    Object.defineProperty(target, '__name__', {get: getName});
+    Object.defineProperty(target, '__dictionary__', {get: getDictionary});
+    Object.defineProperty(target, 'parentTemplate', {get: getParent});
+    Object.defineProperty(target, '__children__', {get: getChildren});
+
+    target.fromPOJO = function fromPOJO(pojo) {
+        return ObjectTemplate.fromPOJO(pojo, target);
+    };
+
+    target.fromJSON = function fromJSON(str, idPrefix) {
+        return ObjectTemplate.fromJSON(str, target, idPrefix);
+    };
+
+    target.getProperties = function getProperties(includeVirtual) {
+        return ObjectTemplate._getDefineProperties(target, undefined, includeVirtual);
+    };
+
+    function defineProperties() {
+        return target.prototype.__amorphicprops__;
+    }
+    function getName () {
+        return target.toString().match(new RegExp(/.*function (.*)\(/))[1]
+    }
+    function getDictionary () {
+        if (ObjectTemplate.__templates__) {
+            for (var ix = 0; ix < ObjectTemplate.__templates__.length; ++ix) {
+                var template = ObjectTemplate.__templates__[ix];
+                ObjectTemplate.__dictionary__[constructorName(template)] = template;
+                ObjectTemplate.__templatesToInject__[constructorName(template)] = template;
+            }
+            ObjectTemplate.__templates__ = undefined;
+            for (var templateName1 in ObjectTemplate.__dictionary__) {
+                var template = ObjectTemplate.__dictionary__[templateName1];
+                var parentTemplateName = constructorName(Object.getPrototypeOf(template.prototype).constructor);
+                template.__shadowParent__ = ObjectTemplate.__dictionary__[parentTemplateName];
+                if (template.__shadowParent__) {
+                    template.__shadowParent__.__shadowChildren__.push(template);
+                }
+            }
+            console.log('foo');
+        }
+    }
+    function getParent () {
+        getDictionary();
+        return target.__shadowParent__;
+    }
+    function getChildren () {
+        getDictionary();
+        return target.__shadowChildren__;
+    }
+    target.prototype.__prop__ = function g(prop) {
+        return ObjectTemplate._getDefineProperty(prop, target.prototype.__template__);
+    };
+
+    target.prototype.__values__ = function f(prop) {
+        var defineProperty = target.prototype.__prop__(prop);
+
+        if (typeof(defineProperty.values) == 'function') {
+            return defineProperty.values.call(this);
+        }
+
+        return defineProperty.values;
+    };
+
+    target.prototype.__descriptions__ = function e(prop) {
+        var defineProperty = target.prototype.__prop__(prop);
+
+        if (typeof(defineProperty.descriptions) == 'function') {
+            return defineProperty.descriptions.call(this);
+        }
+
+        return defineProperty.descriptions;
+    };
+
+    target.prototype.__template__ = target;
+
+    target.prototype.toJSONString = function toJSONString(cb) {
+        return ObjectTemplate.toJSONString(this, cb);
+    };
+
+    /*
+    TODO: Typescript
+    Looking at the supertype constructor these need to be dealt with
+    - createProperties used by client.js to add Persistor, Get and Fetch
+    - injections
+    */
+
+    function constructorName(constructor) {
+        var namedFunction =  constructor.toString().match(new RegExp(/.*function (.*)\(/));
+        return namedFunction ? namedFunction[1] : null;
+    }
+
 }
+
+ObjectTemplate.Supertype = function () {
+
+    var template = this.__template__;
+    ObjectTemplate._stashObject(this, template);
+
+    // Type system level injection
+    ObjectTemplate._injectIntoObject(this);
+
+    // Template level injections
+    for (var ix = 0; ix < template.__injections__.length; ++ix) {
+        template.__injections__[ix].call(this, this);
+    }
+
+    // Global injections
+    for (var j = 0; j < ObjectTemplate.__injections__.length; ++j) {
+        ObjectTemplate.__injections__[j].call(this, this);
+    }
+
+
+}
+
+ObjectTemplate.property = function (props) {
+    require('reflect-metadata');
+    return function (target, targetKey) {
+        target.__amorphicprops__ = target.__amorphicprops__ || {}
+        target.__amorphicprops__[targetKey] = props || {};
+        target.__amorphicprops__[targetKey].type  =
+            Reflect.getMetadata('design:type', target, targetKey);
+        console.log('foo');
+};
+
+}
+
+return ObjectTemplate;
+
+}));

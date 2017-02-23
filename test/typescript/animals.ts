@@ -1,51 +1,10 @@
-var expect = require('chai').expect;
-var ObjectTemplate = require('../index.js');
-
-
-/* Teacher Student Example */
-BaseTemplate = ObjectTemplate.create('BaseTemplate',
-{
-    name: {type: String},
-    isMammal: {type: Boolean, value: true},
-    legs: {type: Number}
-});
-
-BaseTemplate.mixin({
-    legs: {type: Number, value: 2} // Make sure duplicate props work
-});
-
-Lion = BaseTemplate.extend('Lion',
-{
-    init: function init() {
-        BaseTemplate.call(this);
-        this.name = 'Lion';
-        this.legs = 4;
-    },
-    canRoar: function canRoar() {return true;}
-});
-
-Bear = BaseTemplate.extend('Bear',
-{
-    init: function init() {
-        BaseTemplate.call(this);
-        this.name = 'Bear';
-    },
-    canHug: function canHug() {return true;}
-});
-
-Ark = ObjectTemplate.create('Ark',
-{
-    animals: {type: Array, of: BaseTemplate, value: []},
-    board: function (animal) {
-        animal.ark = this;
-        this.animals.push(animal);
-    }
-});
-
-BaseTemplate.mixin(
-{
-    ark:    {type: Ark}
-});
+import {expect} from 'chai';
+import * as mocha from 'mocha';
+import {BaseTemplate} from "./model/BaseTemplate";
+import {Ark} from "./model/Arc";
+import {Lion} from "./model/Lion";
+import {Bear} from "./model/Bear";
+import "reflect-metadata";
 
 describe('Freeze Dried Arks', function () {
     var ark1;
@@ -97,6 +56,8 @@ describe('Freeze Dried Arks', function () {
 
         done();
     });
+/*
+TODO: Typescript -- figure this out
 
     it ('can log', function () {
         var date = new Date('11/11/2010');
@@ -133,4 +94,5 @@ describe('Freeze Dried Arks', function () {
 
         expect(output).to.equal(result);
     });
+*/
 });
