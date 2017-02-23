@@ -4,7 +4,7 @@ import {BaseTemplate} from './BaseTemplate';
 @supertypeClass
 export class Ark extends Supertype
 {
-    @property({of: BaseTemplate})
+    @property({type: BaseTemplate})
     animals: Array<BaseTemplate> = [];
     board (animal) {
         animal.ark = this;

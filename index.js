@@ -1567,21 +1567,23 @@ ObjectTemplate.createLogger = function createLogger(context) {
 
 ObjectTemplate.init();
 
-ObjectTemplate.supertypeClass = function (target, props) {
+ObjectTemplate.supertypeClass = function (target, props, objectTemplate) {
+
+    objectTemplate = objectTemplate || ObjectTemplate;
 
     target.isObjectTemplate = true;
     target.__injections__ = [];
     target.__templateProps__ = props;
-    target.__objectTemplate__ = ObjectTemplate;
-    var createProps = ObjectTemplate.getTemplateProperties(props || {});
+    target.__objectTemplate__ = objectTemplate;
+    var createProps = objectTemplate.getTemplateProperties(props || {});
     target.__toClient__ = createProps.toClient;
     target.__toServer__ = createProps.toClient;
     target.__shadowChildren__ = [];
 
     // Push an array of template references (we can't get at their names now).  Later we will
     // use this to construct __dictionary__
-    ObjectTemplate.__templates__ = ObjectTemplate.__templates__ || [];
-    ObjectTemplate.__templates__.push(target);
+    objectTemplate.__templates__ = objectTemplate.__templates__ || [];
+    objectTemplate.__templates__.push(target);
 
 
     // We can never reference template functions at compile time which is when this decorator is executed
@@ -1594,18 +1596,18 @@ ObjectTemplate.supertypeClass = function (target, props) {
     Object.defineProperty(target, '__children__', {get: getChildren});
 
     target.fromPOJO = function fromPOJO(pojo) {
-        return ObjectTemplate.fromPOJO(pojo, target);
+        return objectTemplate.fromPOJO(pojo, target);
     };
 
     target.fromJSON = function fromJSON(str, idPrefix) {
-        return ObjectTemplate.fromJSON(str, target, idPrefix);
+        return objectTemplate.fromJSON(str, target, idPrefix);
     };
 
     target.getProperties = function getProperties(includeVirtual) {
-        return ObjectTemplate._getDefineProperties(target, undefined, includeVirtual);
+        return objectTemplate._getDefineProperties(target, undefined, includeVirtual);
     };
     target.prototype.__prop__ = function g(prop) {
-        return ObjectTemplate._getDefineProperty(prop, target.prototype.__template__);
+        return objectTemplate._getDefineProperty(prop, target.prototype.__template__);
     };
 
     target.prototype.__values__ = function f(prop) {
@@ -1631,13 +1633,17 @@ ObjectTemplate.supertypeClass = function (target, props) {
     target.prototype.__template__ = target;
 
     target.prototype.toJSONString = function toJSONString(cb) {
-        return ObjectTemplate.toJSONString(this, cb);
+        return objectTemplate.toJSONString(this, cb);
     };
 
     if (target.prototype.__exceptions__)  {
-        ObjectTemplate.__exceptions__ = ObjectTemplate.__exceptions__ || []
+        objectTemplate.__exceptions__ = objectTemplate.__exceptions__ || []
         for (var exceptionKey in target.prototype.__exceptions__) {
-            ObjectTemplate.__exceptions__.push({class: getName, prop: exceptionKey});
+            objectTemplate.__exceptions__.push({
+                func: target.prototype.__exceptions__[exceptionKey],
+                class: getName,
+                prop: exceptionKey
+            });
         }
     }
 
@@ -1648,28 +1654,28 @@ ObjectTemplate.supertypeClass = function (target, props) {
         return target.toString().match(new RegExp(/.*function (.*)\(/))[1]
     }
     function getDictionary () {
-        if (ObjectTemplate.__templates__) {
-            for (var ix = 0; ix < ObjectTemplate.__templates__.length; ++ix) {
-                var template = ObjectTemplate.__templates__[ix];
-                ObjectTemplate.__dictionary__[constructorName(template)] = template;
-                ObjectTemplate.__templatesToInject__[constructorName(template)] = template;
+        if (objectTemplate.__templates__) {
+            for (var ix = 0; ix < objectTemplate.__templates__.length; ++ix) {
+                var template = objectTemplate.__templates__[ix];
+                objectTemplate.__dictionary__[constructorName(template)] = template;
+                objectTemplate.__templatesToInject__[constructorName(template)] = template;
                 processDeferredTypes(template);
             }
-            ObjectTemplate.__templates__ = undefined;
-            for (var templateName1 in ObjectTemplate.__dictionary__) {
-                var template = ObjectTemplate.__dictionary__[templateName1];
+            objectTemplate.__templates__ = undefined;
+            for (var templateName1 in objectTemplate.__dictionary__) {
+                var template = objectTemplate.__dictionary__[templateName1];
                 var parentTemplateName = constructorName(Object.getPrototypeOf(template.prototype).constructor);
-                template.__shadowParent__ = ObjectTemplate.__dictionary__[parentTemplateName];
+                template.__shadowParent__ = objectTemplate.__dictionary__[parentTemplateName];
                 if (template.__shadowParent__) {
                     template.__shadowParent__.__shadowChildren__.push(template);
                 }
             }
-            if (ObjectTemplate.__exceptions__) {
-                throw ObjectTemplate.__exceptions__.map(createMessageLine).join('; \n');
+            if (objectTemplate.__exceptions__) {
+                throw objectTemplate.__exceptions__.map(createMessageLine).join('; \n');
             }
         }
-        function createMessageLine (exc) {
-            return exc.class() + '.' + exc.prop + " - type is undefined - circular reference? use type: () => {return " + exc.prop + "}";
+        function createMessageLine (exception) {
+            return exception.func(exception.class(), exception.prop);
         }
         function processDeferredTypes(template) {
             if (template.prototype.__deferredType__) {
@@ -1710,13 +1716,15 @@ ObjectTemplate.supertypeClass = function (target, props) {
 
 }
 
-ObjectTemplate.Supertype = function () {
+ObjectTemplate.Supertype = function (objectTemplate) {
+
+    objectTemplate = objectTemplate || ObjectTemplate;
 
     var template = this.__template__;
-    ObjectTemplate._stashObject(this, template);
+    objectTemplate._stashObject(this, template);
 
     // Type system level injection
-    ObjectTemplate._injectIntoObject(this);
+    objectTemplate._injectIntoObject(this);
 
     // Template level injections
     for (var ix = 0; ix < template.__injections__.length; ++ix) {
@@ -1724,8 +1732,8 @@ ObjectTemplate.Supertype = function () {
     }
 
     // Global injections
-    for (var j = 0; j < ObjectTemplate.__injections__.length; ++j) {
-        ObjectTemplate.__injections__[j].call(this, this);
+    for (var j = 0; j < objectTemplate.__injections__.length; ++j) {
+        objectTemplate.__injections__[j].call(this, this);
     }
 
 
@@ -1736,20 +1744,37 @@ ObjectTemplate.property = function (props) {
     return function (target, targetKey) {
         props = props || {};
         target.__amorphicprops__ = target.__amorphicprops__ || {}
-        target.__amorphicprops__[targetKey] = props;
-        var type = props.type || Reflect.getMetadata('design:type', target, targetKey);
-        if (typeof props.getType === 'function') {
+        var reflectionType = Reflect.getMetadata('design:type', target, targetKey);
+        var declaredType = props.type;
+        var type = declaredType || reflectionType;
+        // Type mismatches
+        if (declaredType && reflectionType && reflectionType !==Array) {
+            target.__exceptions__ = target.__exceptions__ || {};
+            target.__exceptions__[targetKey] = function (className, prop) {
+                return className + '.' + prop + " - decorator type does not match actual type";
+            };
+        // Deferred type
+        } else if (typeof props.getType === 'function') {
             target.__deferredType__ = target.__deferredType__ || {};
             target.__deferredType__[targetKey] = props.getType;
             delete props.getType;
-        } else if (typeof type === 'undefined' || ('of' in props && typeof(props.of) == 'undefined')) {
+        } else if (!type) {
             target.__exceptions__ = target.__exceptions__ || {};
-            target.__exceptions__[targetKey] = true;
-        }
-        target.__amorphicprops__[targetKey].type  = type;
-};
+            target.__exceptions__[targetKey] = function (className, prop) {
+                return className + '.' + prop +
+                    " - type is undefined - circular reference? use type: () => {return " + prop + "}";
 
-}
+            };
+        }
+        if (reflectionType === Array) {
+            props.type = Array;
+            props.of = type;
+        } else {
+            props.type = type;
+        }
+        target.__amorphicprops__[targetKey] = props;
+    }
+};
 
 return ObjectTemplate;
 
