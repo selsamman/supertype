@@ -1,7 +1,5 @@
 import {Supertype, supertypeClass, property} from '../../../index';
 import {Ark} from './Arc';
-import "reflect-metadata";
-
 
 @supertypeClass
 export class BaseTemplate extends Supertype
@@ -9,6 +7,6 @@ export class BaseTemplate extends Supertype
     name: string;
     isMammal: boolean = true;
     legs: Number = 2;
-    @property({})
+    @property({type: () => {return Ark}})
     ark:    Ark;
 };

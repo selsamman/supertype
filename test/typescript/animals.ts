@@ -4,7 +4,6 @@ import {BaseTemplate} from "./model/BaseTemplate";
 import {Ark} from "./model/Arc";
 import {Lion} from "./model/Lion";
 import {Bear} from "./model/Bear";
-import "reflect-metadata";
 
 describe('Freeze Dried Arks', function () {
     var ark1;

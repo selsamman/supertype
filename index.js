@@ -1604,40 +1604,6 @@ ObjectTemplate.supertypeClass = function (target, props) {
     target.getProperties = function getProperties(includeVirtual) {
         return ObjectTemplate._getDefineProperties(target, undefined, includeVirtual);
     };
-
-    function defineProperties() {
-        return target.prototype.__amorphicprops__;
-    }
-    function getName () {
-        return target.toString().match(new RegExp(/.*function (.*)\(/))[1]
-    }
-    function getDictionary () {
-        if (ObjectTemplate.__templates__) {
-            for (var ix = 0; ix < ObjectTemplate.__templates__.length; ++ix) {
-                var template = ObjectTemplate.__templates__[ix];
-                ObjectTemplate.__dictionary__[constructorName(template)] = template;
-                ObjectTemplate.__templatesToInject__[constructorName(template)] = template;
-            }
-            ObjectTemplate.__templates__ = undefined;
-            for (var templateName1 in ObjectTemplate.__dictionary__) {
-                var template = ObjectTemplate.__dictionary__[templateName1];
-                var parentTemplateName = constructorName(Object.getPrototypeOf(template.prototype).constructor);
-                template.__shadowParent__ = ObjectTemplate.__dictionary__[parentTemplateName];
-                if (template.__shadowParent__) {
-                    template.__shadowParent__.__shadowChildren__.push(template);
-                }
-            }
-            console.log('foo');
-        }
-    }
-    function getParent () {
-        getDictionary();
-        return target.__shadowParent__;
-    }
-    function getChildren () {
-        getDictionary();
-        return target.__shadowChildren__;
-    }
     target.prototype.__prop__ = function g(prop) {
         return ObjectTemplate._getDefineProperty(prop, target.prototype.__template__);
     };
@@ -1667,6 +1633,68 @@ ObjectTemplate.supertypeClass = function (target, props) {
     target.prototype.toJSONString = function toJSONString(cb) {
         return ObjectTemplate.toJSONString(this, cb);
     };
+
+    if (target.prototype.__exceptions__)  {
+        ObjectTemplate.__exceptions__ = ObjectTemplate.__exceptions__ || []
+        for (var exceptionKey in target.prototype.__exceptions__) {
+            ObjectTemplate.__exceptions__.push({class: getName, prop: exceptionKey});
+        }
+    }
+
+    function defineProperties() {
+        return target.prototype.__amorphicprops__;
+    }
+    function getName () {
+        return target.toString().match(new RegExp(/.*function (.*)\(/))[1]
+    }
+    function getDictionary () {
+        if (ObjectTemplate.__templates__) {
+            for (var ix = 0; ix < ObjectTemplate.__templates__.length; ++ix) {
+                var template = ObjectTemplate.__templates__[ix];
+                ObjectTemplate.__dictionary__[constructorName(template)] = template;
+                ObjectTemplate.__templatesToInject__[constructorName(template)] = template;
+                processDeferredTypes(template);
+            }
+            ObjectTemplate.__templates__ = undefined;
+            for (var templateName1 in ObjectTemplate.__dictionary__) {
+                var template = ObjectTemplate.__dictionary__[templateName1];
+                var parentTemplateName = constructorName(Object.getPrototypeOf(template.prototype).constructor);
+                template.__shadowParent__ = ObjectTemplate.__dictionary__[parentTemplateName];
+                if (template.__shadowParent__) {
+                    template.__shadowParent__.__shadowChildren__.push(template);
+                }
+            }
+            if (ObjectTemplate.__exceptions__) {
+                throw ObjectTemplate.__exceptions__.map(createMessageLine).join('; \n');
+            }
+        }
+        function createMessageLine (exc) {
+            return exc.class() + '.' + exc.prop + " - type is undefined - circular reference? use type: () => {return " + exc.prop + "}";
+        }
+        function processDeferredTypes(template) {
+            if (template.prototype.__deferredType__) {
+                for (var prop in template.prototype.__deferredType__) {
+                    var defineProperty = template.defineProperties[prop];
+                    if (defineProperty) {
+                        if (typeof defineProperty.type == 'function') {
+                            defineProperty.type = defineProperty.type();
+                        }
+                        if (typeof defineProperty.of == 'function') {
+                            defineProperty.of = defineProperty.of();
+                        }
+                    }
+                }
+            }
+        }
+    }
+    function getParent () {
+        getDictionary();
+        return target.__shadowParent__;
+    }
+    function getChildren () {
+        getDictionary();
+        return target.__shadowChildren__;
+    }
 
     /*
     TODO: Typescript
@@ -1706,11 +1734,19 @@ ObjectTemplate.Supertype = function () {
 ObjectTemplate.property = function (props) {
     require('reflect-metadata');
     return function (target, targetKey) {
+        props = props || {};
         target.__amorphicprops__ = target.__amorphicprops__ || {}
-        target.__amorphicprops__[targetKey] = props || {};
-        target.__amorphicprops__[targetKey].type  =
-            Reflect.getMetadata('design:type', target, targetKey);
-        console.log('foo');
+        target.__amorphicprops__[targetKey] = props;
+        var type = props.type || Reflect.getMetadata('design:type', target, targetKey);
+        if (typeof type === 'undefined' || ('of' in props && typeof(props.of) == 'undefined')) {
+            target.__exceptions__ = target.__exceptions__ || {};
+            target.__exceptions__[targetKey] = true;
+        }
+        if (typeof type === 'function' || ('of' in props && typeof(props.of) == 'function')) {
+            target.__deferredType__ = target.__deferredType__ || {};
+            target.__deferredType__[targetKey] = true;
+        }
+        target.__amorphicprops__[targetKey].type  = type;
 };
 
 }
