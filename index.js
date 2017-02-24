@@ -1720,7 +1720,7 @@ ObjectTemplate.getClasses = function () {
                 var defineProperty = template.defineProperties[prop];
                 if (defineProperty) {
                     var type = template.prototype.__deferredType__[prop]();
-                    if (typeof defineProperty.type === Array) {
+                    if (defineProperty.type === Array) {
                         defineProperty.of = type;
                     } else {
                         defineProperty.type = type;
