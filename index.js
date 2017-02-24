@@ -1595,6 +1595,7 @@ ObjectTemplate.supertypeClass = function (target, props, objectTemplate) {
     Object.defineProperty(target, '__name__', {get: getName});
     Object.defineProperty(target, '__dictionary__', {get: getDictionary});
     Object.defineProperty(target, 'parentTemplate', {get: getParent});
+    Object.defineProperty(target, '__parent__', {get: getParent});
     Object.defineProperty(target, '__children__', {get: getChildren});
 
     target.fromPOJO = function fromPOJO(pojo) {
