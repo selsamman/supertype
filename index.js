@@ -1610,8 +1610,8 @@ ObjectTemplate.supertypeClass = function (target, props, objectTemplate) {
 
     target.createProperty = function (propertyName, defineProperty) {
         if (defineProperty.body) {
-            target.prototype[propertyName] = objectTemplate._setupFunction(propertyName, defineProperty[propertyName].body,
-                defineProperty[propertyName].on, defineProperty[propertyName].validate);
+            target.prototype[propertyName] = objectTemplate._setupFunction(propertyName, defineProperty.body,
+                defineProperty.on, defineProperty.validate);
         } else {
             target.defineProperties[propertyName] = defineProperty;
         }
