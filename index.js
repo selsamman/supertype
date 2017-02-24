@@ -1643,8 +1643,6 @@ ObjectTemplate.supertypeClass = function (target, props, objectTemplate) {
         return defineProperty.descriptions;
     };
 
-    target.prototype.__template__ = target;
-
     target.prototype.toJSONString = function toJSONString(cb) {
         return objectTemplate.toJSONString(this, cb);
     };
@@ -1745,6 +1743,9 @@ ObjectTemplate.Supertype = function (objectTemplate) {
     objectTemplate = objectTemplate || ObjectTemplate;
 
     var template = this.__template__;
+    if (!template) {
+        throw new Error(constructorName(Object.getPrototypeOf(this).constructor) + " missing @supertypeClass");
+    }
     objectTemplate._stashObject(this, template);
 
     // Type system level injection
@@ -1760,6 +1761,10 @@ ObjectTemplate.Supertype = function (objectTemplate) {
         objectTemplate.__injections__[j].call(this, this);
     }
 
+    function constructorName(constructor) {
+        var namedFunction =  constructor.toString().match(new RegExp(/.*function (.*)\(/));
+        return namedFunction ? namedFunction[1] : null;
+    }
 
 }
 
