@@ -38,6 +38,7 @@ function ObjectTemplate() {
  * Purpose unknown
  */
 ObjectTemplate.performInjections = function performInjections() {
+    this.getClasses();
     if (this.__templatesToInject__) {
         var objectTemplate = this;
 
@@ -73,7 +74,7 @@ ObjectTemplate.init = function () {
  * @returns {unknown}
  */
 ObjectTemplate.getTemplateByName = function getTemplateByName(name) {
-    return this.__dictionary__[name];
+    return this.getClasses()[name];
 };
 
 /**
@@ -1606,6 +1607,16 @@ ObjectTemplate.supertypeClass = function (target, props, objectTemplate) {
     target.getProperties = function getProperties(includeVirtual) {
         return objectTemplate._getDefineProperties(target, undefined, includeVirtual);
     };
+
+    target.createProperty = function (propertyName, defineProperty) {
+        if (defineProperty.body) {
+            target.prototype[propertyName] = objectTemplate._setupFunction(propertyName, defineProperty[propertyName].body,
+                defineProperty[propertyName].on, defineProperty[propertyName].validate);
+        } else {
+            target.defineProperties[propertyName] = defineProperty;
+        }
+    }
+
     target.prototype.__prop__ = function g(prop) {
         return objectTemplate._getDefineProperty(prop, target.prototype.__template__);
     };
@@ -1654,45 +1665,8 @@ ObjectTemplate.supertypeClass = function (target, props, objectTemplate) {
         return target.toString().match(new RegExp(/.*function (.*)\(/))[1]
     }
     function getDictionary () {
-        if (objectTemplate.__templates__) {
-            for (var ix = 0; ix < objectTemplate.__templates__.length; ++ix) {
-                var template = objectTemplate.__templates__[ix];
-                objectTemplate.__dictionary__[constructorName(template)] = template;
-                objectTemplate.__templatesToInject__[constructorName(template)] = template;
-                processDeferredTypes(template);
-            }
-            objectTemplate.__templates__ = undefined;
-            for (var templateName1 in objectTemplate.__dictionary__) {
-                var template = objectTemplate.__dictionary__[templateName1];
-                var parentTemplateName = constructorName(Object.getPrototypeOf(template.prototype).constructor);
-                template.__shadowParent__ = objectTemplate.__dictionary__[parentTemplateName];
-                if (template.__shadowParent__) {
-                    template.__shadowParent__.__shadowChildren__.push(template);
-                }
-            }
-            if (objectTemplate.__exceptions__) {
-                throw objectTemplate.__exceptions__.map(createMessageLine).join('; \n');
-            }
-        }
-        function createMessageLine (exception) {
-            return exception.func(exception.class(), exception.prop);
-        }
-        function processDeferredTypes(template) {
-            if (template.prototype.__deferredType__) {
-                for (var prop in template.prototype.__deferredType__) {
-                    var defineProperty = template.defineProperties[prop];
-                    if (defineProperty) {
-                        var type = template.prototype.__deferredType__[prop]();
-                        if (typeof defineProperty.type === Array) {
-                            defineProperty.of = type;
-                        } else {
-                            defineProperty.type = type;
-                        }
-                    }
-                }
-            }
-        }
-    }
+        objectTemplate.getClasses();
+      }
     function getParent () {
         getDictionary();
         return target.__shadowParent__;
@@ -1708,6 +1682,54 @@ ObjectTemplate.supertypeClass = function (target, props, objectTemplate) {
     - createProperties used by client.js to add Persistor, Get and Fetch
     - injections
     */
+
+    function constructorName(constructor) {
+        var namedFunction =  constructor.toString().match(new RegExp(/.*function (.*)\(/));
+        return namedFunction ? namedFunction[1] : null;
+    }
+
+}
+
+ObjectTemplate.getClasses = function () {
+    if (this.__templates__) {
+        for (var ix = 0; ix < this.__templates__.length; ++ix) {
+            var template = this.__templates__[ix];
+            this.__dictionary__[constructorName(template)] = template;
+            this.__templatesToInject__[constructorName(template)] = template;
+            processDeferredTypes(template);
+        }
+        this.__templates__ = undefined;
+        for (var templateName1 in this.__dictionary__) {
+            var template = this.__dictionary__[templateName1];
+            var parentTemplateName = constructorName(Object.getPrototypeOf(template.prototype).constructor);
+            template.__shadowParent__ = this.__dictionary__[parentTemplateName];
+            if (template.__shadowParent__) {
+                template.__shadowParent__.__shadowChildren__.push(template);
+            }
+        }
+        if (this.__exceptions__) {
+            throw new Error(this.__exceptions__.map(createMessageLine).join('\n'));
+        }
+    }
+    function createMessageLine (exception) {
+        return exception.func(exception.class(), exception.prop);
+    }
+    function processDeferredTypes(template) {
+        if (template.prototype.__deferredType__) {
+            for (var prop in template.prototype.__deferredType__) {
+                var defineProperty = template.defineProperties[prop];
+                if (defineProperty) {
+                    var type = template.prototype.__deferredType__[prop]();
+                    if (typeof defineProperty.type === Array) {
+                        defineProperty.of = type;
+                    } else {
+                        defineProperty.type = type;
+                    }
+                }
+            }
+        }
+    }
+    return this.__dictionary__;
 
     function constructorName(constructor) {
         var namedFunction =  constructor.toString().match(new RegExp(/.*function (.*)\(/));
@@ -1762,7 +1784,8 @@ ObjectTemplate.property = function (props) {
             target.__exceptions__ = target.__exceptions__ || {};
             target.__exceptions__[targetKey] = function (className, prop) {
                 return className + '.' + prop +
-                    " - type is undefined - circular reference? use type: () => {return " + prop + "}";
+                    " - type is undefined. Circular reference? Try @property({getType: () => {return " +
+                    prop[0].toUpperCase() + prop.substr(1) + "}})";
 
             };
         }
