@@ -1807,6 +1807,10 @@ ObjectTemplate.property = function (props) {
     }
 };
 
+ObjectTemplate.remote = function (defineProperty) {
+}
+
+
 return ObjectTemplate;
 
 }));

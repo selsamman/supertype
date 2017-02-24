@@ -37,5 +37,6 @@ export class Supertype {
     refresh (logger?)
     persist (options)
 }
+export function remote(props?);
 export function property(props?: Object);
 export function supertypeClass(target?: Function);
