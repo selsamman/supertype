@@ -18,6 +18,7 @@ export class Supertype {
     static isKnex()
     static knexParentJoin(targetTemplate, primaryAlias, targetAlias, joinKey)
     static knexChildJoin(targetTemplate, primaryAlias, targetAlias, joinKey)
+    static createProperty(prop : String, defineProperty: Object)
     _id: Object;
     __id__: String;
 

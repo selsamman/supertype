@@ -1572,6 +1572,7 @@ ObjectTemplate.supertypeClass = function (target, props, objectTemplate) {
 
     objectTemplate = objectTemplate || ObjectTemplate;
 
+    target.prototype.__template__ = target;
     target.isObjectTemplate = true;
     target.__injections__ = [];
     target.__templateProps__ = props;
@@ -1613,7 +1614,8 @@ ObjectTemplate.supertypeClass = function (target, props, objectTemplate) {
             target.prototype[propertyName] = objectTemplate._setupFunction(propertyName, defineProperty.body,
                 defineProperty.on, defineProperty.validate);
         } else {
-            target.__amorphicprops__[propertyName] = defineProperty;
+            target.prototype.__amorphicprops__[propertyName] = defineProperty;
+            Object.defineProperty(target.prototype, propertyName, {enumerable: true, writable: true, value: defineProperty.value});
         }
     }
 

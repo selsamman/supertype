@@ -10,7 +10,15 @@ describe('Freeze Dried Arks', function () {
     var ark2;
 
     it ('create the arc', function (done) {
+        Ark.createProperty('foo', {isLocal: true, type: String, value: 'foo'});
+        Ark.createProperty('bar', {isLocal: true, type: String, value: 'bar'});
+        Ark.createProperty('barPersistor', {isLocal: true, type: String, value: {isFetched: true}});
         ark1 = new Ark();
+        expect(ark1.foo).to.equal('foo');
+        expect(ark1.bar).to.equal('bar');
+        expect(ark1.barPersistor.isFetched).to.equal(true);
+        ark1.barPersistor.isFetched = false;
+        expect(ark1.barPersistor.isFetched).to.equal(false);
         ark1.board(new Lion());
         ark1.board(new Bear());
         ark2 = new Ark();
