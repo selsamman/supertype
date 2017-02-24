@@ -16,6 +16,7 @@ describe('Freeze Dried Arks', function () {
         ark2 = new Ark();
         ark2.board(new Lion());
         ark2.board(new Bear());
+        expect(ark1.__template__.__name__).to.equal('Ark');
         expect(ark1.animals[0].canRoar()).to.equal(true);
         expect(ark1.animals[1].canHug()).to.equal(true);
         expect(ark1.animals[0].legs).to.equal(4);

@@ -1765,6 +1765,7 @@ ObjectTemplate.property = function (props) {
     require('reflect-metadata');
     return function (target, targetKey) {
         props = props || {};
+        props.enumerable = true;
         target.__amorphicprops__ = target.__amorphicprops__ || {}
         var reflectionType = Reflect.getMetadata('design:type', target, targetKey);
         var declaredType = props.type;
