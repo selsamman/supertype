@@ -1808,6 +1808,8 @@ ObjectTemplate.property = function (props) {
 };
 
 ObjectTemplate.remote = function (defineProperty) {
+    return function (target, propertyName, descriptor) {
+    }
 }
 
 
