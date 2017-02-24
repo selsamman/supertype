@@ -1613,7 +1613,7 @@ ObjectTemplate.supertypeClass = function (target, props, objectTemplate) {
             target.prototype[propertyName] = objectTemplate._setupFunction(propertyName, defineProperty.body,
                 defineProperty.on, defineProperty.validate);
         } else {
-            target.defineProperties[propertyName] = defineProperty;
+            target.__amorphicprops__[propertyName] = defineProperty;
         }
     }
 
