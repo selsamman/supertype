@@ -1,6 +1,5 @@
 import {expect} from 'chai';
 import * as mocha from 'mocha';
-import {BaseTemplate} from "./model/BaseTemplate";
 import {Ark} from "./model/Arc";
 import {Lion} from "./model/Lion";
 import {Bear} from "./model/Bear";

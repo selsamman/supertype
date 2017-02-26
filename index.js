@@ -1777,7 +1777,7 @@ ObjectTemplate.property = function (props) {
         target.__amorphicprops__ = target.__amorphicprops__ || {}
         var reflectionType = Reflect.getMetadata('design:type', target, targetKey);
         var declaredType = props.type;
-        var type = declaredType || reflectionType;
+        var type = reflectionType !== Array ? declaredType || reflectionType : declaredType;
         // Type mismatches
         if (declaredType && reflectionType && reflectionType !==Array) {
             target.__exceptions__ = target.__exceptions__ || {};
