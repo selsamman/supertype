@@ -1743,11 +1743,12 @@ ObjectTemplate.Supertype = function (objectTemplate) {
 
     objectTemplate = objectTemplate || ObjectTemplate;
 
+    this.__template__ = Object.getPrototypeOf(this).__template__;
     var template = this.__template__;
     if (!template) {
         throw new Error(constructorName(Object.getPrototypeOf(this).constructor) + " missing @supertypeClass");
     }
-    objectTemplate._stashObject(this, template);
+    this.__executeConstructor__ = objectTemplate._stashObject(this, template);
 
     // Type system level injection
     objectTemplate._injectIntoObject(this);
@@ -1761,6 +1762,8 @@ ObjectTemplate.Supertype = function (objectTemplate) {
     for (var j = 0; j < objectTemplate.__injections__.length; ++j) {
         objectTemplate.__injections__[j].call(this, this);
     }
+
+    return this;
 
     function constructorName(constructor) {
         var namedFunction =  constructor.toString().match(new RegExp(/.*function (.*)\(/));
