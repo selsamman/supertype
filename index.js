@@ -1747,7 +1747,7 @@ ObjectTemplate.Supertype = function (objectTemplate) {
     if (!template) {
         throw new Error(constructorName(Object.getPrototypeOf(this).constructor) + " missing @supertypeClass");
     }
-    this.__empty__ = !objectTemplate._stashObject(this, template);
+    this.__empty__ = objectTemplate._stashObject(this, template);
 
     // Type system level injection
     objectTemplate._injectIntoObject(this);
