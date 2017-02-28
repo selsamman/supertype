@@ -1743,12 +1743,11 @@ ObjectTemplate.Supertype = function (objectTemplate) {
 
     objectTemplate = objectTemplate || ObjectTemplate;
 
-    this.__template__ = Object.getPrototypeOf(this).__template__;
     var template = this.__template__;
     if (!template) {
         throw new Error(constructorName(Object.getPrototypeOf(this).constructor) + " missing @supertypeClass");
     }
-    this.__executeConstructor__ = objectTemplate._stashObject(this, template);
+    this.__empty__ = !objectTemplate._stashObject(this, template);
 
     // Type system level injection
     objectTemplate._injectIntoObject(this);

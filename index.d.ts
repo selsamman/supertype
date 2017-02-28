@@ -21,6 +21,7 @@ export class Supertype {
     static createProperty(prop : String, defineProperty: Object)
     _id: Object;
     __id__: String;
+    __empty__: boolean;
 
     toJSONString()
     setDirty()
