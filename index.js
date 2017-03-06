@@ -1032,10 +1032,13 @@ ObjectTemplate.fromPOJO = function fromPOJO(pojo, template, defineProperty, idMa
         var defineProp = props[propb];
         var type = defineProp.type;
 
-        if (type && pojo[propb] == null) {
+        // Because semotus can serialize only the shadow properties we try and restore them
+        var pojoProp = (type && typeof pojo['__' + propb] != 'undefined') ? '__' + propb : propb;
+
+        if (type && pojo[pojoProp] == null) {
             obj[propb] = null;
         }
-        else if (type && typeof(pojo[propb]) != 'undefined') {
+        else if (type && typeof(pojo[pojoProp]) != 'undefined') {
             if (type == Array && defineProp.of && defineProp.of.isObjectTemplate) { // Array of templated objects
                 var arrayDirections = null;
 
@@ -1046,14 +1049,14 @@ ObjectTemplate.fromPOJO = function fromPOJO(pojo, template, defineProperty, idMa
                 if (typeof(arrayDirections) != 'undefined') {
                     obj[propb] = [];
 
-                    for (var ix = 0; ix < pojo[propb].length; ++ix) {
-                        var atype = pojo[propb][ix].__template__ || defineProp.of;
-                        if (pojo[propb][ix]) {
-                            if (pojo[propb][ix].__id__ && idMap[getId(pojo[propb][ix].__id__.toString())]) {
-                                obj[propb][ix] = idMap[getId(pojo[propb][ix].__id__.toString())];
+                    for (var ix = 0; ix < pojo[pojoProp].length; ++ix) {
+                        var atype = pojo[pojoProp][ix].__template__ || defineProp.of;
+                        if (pojo[pojoProp][ix]) {
+                            if (pojo[pojoProp][ix].__id__ && idMap[getId(pojo[pojoProp][ix].__id__.toString())]) {
+                                obj[propb][ix] = idMap[getId(pojo[pojoProp][ix].__id__.toString())];
                             }
                             else {
-                                obj[propb][ix] = this.fromPOJO(pojo[propb][ix], atype, defineProp, idMap, idQualifier, obj, propb, creator);
+                                obj[propb][ix] = this.fromPOJO(pojo[pojoProp][ix], atype, defineProp, idMap, idQualifier, obj, propb, creator);
                             }
                         }
                         else {
@@ -1066,24 +1069,24 @@ ObjectTemplate.fromPOJO = function fromPOJO(pojo, template, defineProperty, idMa
                 }
             }
             else if (type.isObjectTemplate) { // Templated objects
-                var otype = pojo[propb].__template__ || type;
-                if (pojo[propb].__id__ && idMap[getId(pojo[propb].__id__.toString())]) {
-                    obj[propb] = idMap[getId(pojo[propb].__id__.toString())];
+                var otype = pojo[pojoProp].__template__ || type;
+                if (pojo[pojoProp].__id__ && idMap[getId(pojo[pojoProp].__id__.toString())]) {
+                    obj[propb] = idMap[getId(pojo[pojoProp].__id__.toString())];
                 }
                 else {
-                    obj[propb] = this.fromPOJO(pojo[propb], otype, defineProp, idMap, idQualifier, obj, propb, creator);
+                    obj[propb] = this.fromPOJO(pojo[pojoProp], otype, defineProp, idMap, idQualifier, obj, propb, creator);
                 }
             }
             else if (type == Date) {
-                if (pojo[propb]) {
-                    obj[propb] = new Date(pojo[propb]);
+                if (pojo[pojoProp]) {
+                    obj[propb] = new Date(pojo[pojoProp]);
                 }
                 else {
                     obj[propb] = null;
                 }
             }
             else {
-                obj[propb] = pojo[propb];
+                obj[propb] = pojo[pojoProp];
             }
         }
     }
@@ -1593,7 +1596,6 @@ ObjectTemplate.supertypeClass = function (target, props, objectTemplate) {
     // that we can ensure they are fully resolved before accessing them
     Object.defineProperty(target, 'defineProperties', {get: defineProperties});
     Object.defineProperty(target, '__name__', {get: getName});
-    Object.defineProperty(target, '__dictionary__', {get: getDictionary});
     Object.defineProperty(target, 'parentTemplate', {get: getParent});
     Object.defineProperty(target, '__parent__', {get: getParent});
     Object.defineProperty(target, '__children__', {get: getChildren});
@@ -1616,7 +1618,22 @@ ObjectTemplate.supertypeClass = function (target, props, objectTemplate) {
                 defineProperty.on, defineProperty.validate);
         } else {
             target.prototype.__amorphicprops__[propertyName] = defineProperty;
-            Object.defineProperty(target.prototype, propertyName, {enumerable: true, writable: true, value: defineProperty.value});
+            if (typeof defineProperty.value in ['string', 'number'] || defineProperty.value == null) {
+                Object.defineProperty(target.prototype, propertyName, {enumerable: true, writable: true, value: defineProperty.value});
+            } else {
+                Object.defineProperty(target.prototype, propertyName, {enumerable: true,
+                    get: function () {
+                        if (!this['__' + propertyName]) {
+                            this['__' + propertyName] =
+                                ObjectTemplate.clone(defineProperty.value, defineProperty.of || defineProperty.type || null);
+                        }
+                        return this['__' + propertyName]
+                    },
+                    set: function (value) {
+                        this['__' + propertyName] = value;
+                    }
+                });
+            }
         }
     }
 
@@ -1776,7 +1793,7 @@ ObjectTemplate.property = function (props) {
     return function (target, targetKey) {
         props = props || {};
         props.enumerable = true;
-        target.__amorphicprops__ = target.__amorphicprops__ || {}
+        target.__amorphicprops__ = target.hasOwnProperty('__amorphicprops__') || {}
         var reflectionType = Reflect.getMetadata('design:type', target, targetKey);
         var declaredType = props.type;
         var type = reflectionType !== Array ? declaredType || reflectionType : declaredType;

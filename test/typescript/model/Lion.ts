@@ -1,9 +1,11 @@
 import {Supertype, supertypeClass, property} from '../../../index';
-import {BaseTemplate} from './BaseTemplate';
+import {Animal} from './Animal';
 
 @supertypeClass
-export class Lion extends BaseTemplate
+export class Lion extends Animal
 {
+    @property()
+    lionStuff: string = 'roar';
     constructor () {
         super();
         this.name = 'Lion';

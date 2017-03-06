@@ -3,10 +3,17 @@ import * as mocha from 'mocha';
 import {Ark} from "./model/Arc";
 import {Lion} from "./model/Lion";
 import {Bear} from "./model/Bear";
+import {Animal} from "./model/Animal";
 
 describe('Freeze Dried Arks', function () {
     var ark1;
     var ark2;
+
+    it ('has appropriate static capabilities', function () {
+        expect(Lion.getProperties().lionStuff.type).to.equal(String);
+        expect(Bear.getProperties().lionStuff).to.equal(undefined);
+        expect(Animal.getProperties().lionStuff).to.equal(undefined);
+    });
 
     it ('create the arc', function (done) {
         Ark.createProperty('foo', {isLocal: true, type: String, value: 'foo'});

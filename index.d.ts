@@ -19,11 +19,13 @@ export class Supertype {
     static knexParentJoin(targetTemplate, primaryAlias, targetAlias, joinKey)
     static knexChildJoin(targetTemplate, primaryAlias, targetAlias, joinKey)
     static createProperty(prop : String, defineProperty: Object)
+    static getProperties()
     _id: Object;
     __id__: String;
     __empty__: boolean;
 
     toJSONString()
+
     setDirty()
     cascadeSave(any)
 

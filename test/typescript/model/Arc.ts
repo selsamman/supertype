@@ -1,11 +1,11 @@
 import {Supertype, supertypeClass, property} from '../../../index';
-import {BaseTemplate} from './BaseTemplate';
+import {Animal} from './Animal';
 
 @supertypeClass
 export class Ark extends Supertype
 {
-    @property({type: BaseTemplate})
-    animals: Array<BaseTemplate> = [];
+    @property({type: Animal})
+    animals: Array<Animal> = [];
     board (animal) {
         animal.ark = this;
         this.animals.push(animal);
