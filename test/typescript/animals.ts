@@ -13,6 +13,11 @@ describe('Freeze Dried Arks', function () {
         expect(Lion.getProperties().lionStuff.type).to.equal(String);
         expect(Bear.getProperties().lionStuff).to.equal(undefined);
         expect(Animal.getProperties().lionStuff).to.equal(undefined);
+        expect(Animal.__children__.length).to.equal(2);
+        expect(Animal.__children__[0]).to.equal(Lion);
+        expect(Animal.__children__[1]).to.equal(Bear);
+        expect(Bear.__parent__).to.equal(Animal);
+        expect(Lion.__parent__).to.equal(Animal);
     });
 
     it ('create the arc', function (done) {
