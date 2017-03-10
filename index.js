@@ -211,8 +211,19 @@ ObjectTemplate.create = function create(name, properties) {
  * @returns {*} the object template
  */
 ObjectTemplate.extend = function extend(parentTemplate, name, properties) {
+    var props;
+    var createProps;
+
     if (!parentTemplate.__objectTemplate__) {
         throw new Error('incorrect parent template');
+    }
+
+    if (typeof(name) != 'undefined' && name.name) {
+        props = name;
+        name = props.name;
+    }
+    else {
+        props = parentTemplate.__createProps__;
     }
 
     if (typeof(name) != 'string' || name.match(/[^A-Za-z0-9_]/)) {
@@ -239,6 +250,10 @@ ObjectTemplate.extend = function extend(parentTemplate, name, properties) {
         }
     }
 
+    if (props) {
+        createProps = this.getTemplateProperties(props);
+    }
+
     if (typeof(this.templateInterceptor) == 'function') {
         this.templateInterceptor('extend', name, properties);
     }
@@ -252,7 +267,12 @@ ObjectTemplate.extend = function extend(parentTemplate, name, properties) {
         template = this._createTemplate(null, parentTemplate, name, parentTemplate, name);
     }
 
-    this.setTemplateProperties(template, name, parentTemplate);
+    if (createProps) {
+        this.setTemplateProperties(template, name, createProps);
+    } else {
+        this.setTemplateProperties(template, name, parentTemplate);
+    }
+    template.__createProps__ = props;
 
     // Maintain graph of parent and child templates
     template.__parent__ = parentTemplate;
