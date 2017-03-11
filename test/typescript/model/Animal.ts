@@ -5,6 +5,7 @@ import {Ark} from './Arc';
 export class Animal extends Supertype
 {
     name: string;
+    @property()
     isMammal: boolean = true;
     legs: Number = 2;
 

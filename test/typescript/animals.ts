@@ -9,15 +9,23 @@ describe('Freeze Dried Arks', function () {
     var ark1;
     var ark2;
 
-    it ('has appropriate static capabilities', function () {
-        expect(Lion.getProperties().lionStuff.type).to.equal(String);
-        expect(Bear.getProperties().lionStuff).to.equal(undefined);
-        expect(Animal.getProperties().lionStuff).to.equal(undefined);
-        expect(Animal.__children__.length).to.equal(2);
-        expect(Animal.__children__[0]).to.equal(Lion);
-        expect(Animal.__children__[1]).to.equal(Bear);
-        expect(Bear.__parent__).to.equal(Animal);
-        expect(Lion.__parent__).to.equal(Animal);
+    it ('has parent an children classes', function () {
+        expect(Animal.amorphicChildClasses.length).to.equal(2);
+        expect(Animal.amorphicChildClasses[0]).to.equal(Lion);
+        expect(Animal.amorphicChildClasses[1]).to.equal(Bear);
+        expect(Bear.amorphicParentClass).to.equal(Animal);
+        expect(Lion.amorphicParentClass).to.equal(Animal);
+    });
+    it ('has property values', function () {
+        expect(Lion.amorphicProperties.lionStuff.type).to.equal(String);
+        expect(Bear.amorphicProperties.lionStuff).to.equal(undefined);
+        expect(Animal.amorphicProperties.lionStuff).to.equal(undefined);
+        expect(Bear.amorphicProperties.isMammal).to.equal(undefined);
+        expect(Bear.amorphicGetProperties().isMammal.type).to.equal(Boolean);
+        expect(Animal.amorphicProperties.isMammal.type).to.equal(Boolean);
+        var ark = new Ark();
+        expect(ark.amorphicGetPropertyValues('size').length).to.equal(2);
+        expect(ark.amorphicGetPropertyDescriptions('size').s).to.equal('small');
     });
 
     it ('create the arc', function (done) {
@@ -54,10 +62,10 @@ describe('Freeze Dried Arks', function () {
     });
 
     it ('save and restore the arc', function (done) {
-        var serialArk1 = ark1.toJSONString();
-        var serialArk2 = ark2.toJSONString();
+        var serialArk1 = ark1.amorphicToJSON();
+        var serialArk2 = ark2.amorphicToJSON();
 
-        ark1 = Ark.fromJSON(serialArk1);
+        ark1 = Ark.amorphicFromJSON(serialArk1);
         expect(ark1.animals[0].canRoar()).to.equal(true);
         expect(ark1.animals[1].canHug()).to.equal(true);
         expect(ark1.animals[0].legs).to.equal(4);
@@ -65,7 +73,7 @@ describe('Freeze Dried Arks', function () {
         expect(ark1.animals[0].ark instanceof Ark).to.equal(true);
         expect(ark1.animals[1].ark instanceof Ark).to.equal(true);
 
-        ark2 = Ark.fromJSON(serialArk2);
+        ark2 = Ark.amorphicFromJSON(serialArk2);
         expect(ark2.animals[0].canRoar()).to.equal(true);
         expect(ark2.animals[1].canHug()).to.equal(true);
         expect(ark2.animals[0].legs).to.equal(4);

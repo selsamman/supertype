@@ -1595,24 +1595,31 @@ ObjectTemplate.supertypeClass = function (target, props, objectTemplate) {
     // Therefore we have to setup getters for properties that need access to the template functions so
     // that we can ensure they are fully resolved before accessing them
     Object.defineProperty(target, 'defineProperties', {get: defineProperties});
+    Object.defineProperty(target, 'amorphicProperties', {get: defineProperties});
     Object.defineProperty(target, '__name__', {get: getName});
+    Object.defineProperty(target, 'amorphicClassName', {get: getName});
     Object.defineProperty(target, 'parentTemplate', {get: getParent});
     Object.defineProperty(target, '__parent__', {get: getParent});
     Object.defineProperty(target, '__children__', {get: getChildren});
+    Object.defineProperty(target, 'amorphicParentClass', {get: getParent});
+    Object.defineProperty(target, 'amorphicChildClasses', {get: getChildren});
 
     target.fromPOJO = function fromPOJO(pojo) {
         return objectTemplate.fromPOJO(pojo, target);
     };
 
-    target.fromJSON = function fromJSON(str, idPrefix) {
+    target.fromJSON = // Legacy
+    target.amorphicFromJSON = function fromJSON(str, idPrefix) {
         return objectTemplate.fromJSON(str, target, idPrefix);
     };
 
-    target.getProperties = function getProperties(includeVirtual) {
+    target.getProperties = // Legacy
+    target.amorphicGetProperties = function getProperties(includeVirtual) {
         return objectTemplate._getDefineProperties(target, undefined, includeVirtual);
     };
 
-    target.createProperty = function (propertyName, defineProperty) {
+    target.createProperty = // Legacy
+    target.amorphicCreateProperty = function (propertyName, defineProperty) {
         if (defineProperty.body) {
             target.prototype[propertyName] = objectTemplate._setupFunction(propertyName, defineProperty.body,
                 defineProperty.on, defineProperty.validate);
@@ -1636,34 +1643,6 @@ ObjectTemplate.supertypeClass = function (target, props, objectTemplate) {
             }
         }
     }
-
-    target.prototype.__prop__ = function g(prop) {
-        return objectTemplate._getDefineProperty(prop, target.prototype.__template__);
-    };
-
-    target.prototype.__values__ = function f(prop) {
-        var defineProperty = target.prototype.__prop__(prop);
-
-        if (typeof(defineProperty.values) == 'function') {
-            return defineProperty.values.call(this);
-        }
-
-        return defineProperty.values;
-    };
-
-    target.prototype.__descriptions__ = function e(prop) {
-        var defineProperty = target.prototype.__prop__(prop);
-
-        if (typeof(defineProperty.descriptions) == 'function') {
-            return defineProperty.descriptions.call(this);
-        }
-
-        return defineProperty.descriptions;
-    };
-
-    target.prototype.toJSONString = function toJSONString(cb) {
-        return objectTemplate.toJSONString(this, cb);
-    };
 
     if (target.prototype.__exceptions__)  {
         objectTemplate.__exceptions__ = objectTemplate.__exceptions__ || []
@@ -1756,6 +1735,12 @@ ObjectTemplate.getClasses = function () {
 
 }
 
+/**
+ * This is the base class for typescript classes.  It must
+ * It will inject members into the object from both the template and objectTemplate
+ * @param {ObjectTemplate} - other layers can pass in their own object template (this is the object not ObjectTemplate)
+ * @returns {Object} the object itself
+ */
 ObjectTemplate.Supertype = function (objectTemplate) {
 
     objectTemplate = objectTemplate || ObjectTemplate;
@@ -1764,17 +1749,19 @@ ObjectTemplate.Supertype = function (objectTemplate) {
     if (!template) {
         throw new Error(constructorName(Object.getPrototypeOf(this).constructor) + " missing @supertypeClass");
     }
-    this.__empty__ = objectTemplate._stashObject(this, template);
+
+    // Tell constructor not to execute as this is an empty object
+    this.amorphicLeaveEmpty = objectTemplate._stashObject(this, template);
 
     // Type system level injection
-    objectTemplate._injectIntoObject(this);
+    objectTemplate._injectIntoObject(this);  // This was used for the modules feature in amorphic (depricated)
 
-    // Template level injections
+    // Template level injections that the application may use
     for (var ix = 0; ix < template.__injections__.length; ++ix) {
         template.__injections__[ix].call(this, this);
     }
 
-    // Global injections
+    // Global injections used by the framework
     for (var j = 0; j < objectTemplate.__injections__.length; ++j) {
         objectTemplate.__injections__[j].call(this, this);
     }
@@ -1787,6 +1774,39 @@ ObjectTemplate.Supertype = function (objectTemplate) {
     }
 
 }
+
+ObjectTemplate.Supertype.prototype.amorphicToJSON = function (cb) {
+    return ObjectTemplate.toJSONString(this, cb);
+}
+
+
+ObjectTemplate.Supertype.prototype.amorphicGetPropertyDefinition = function (prop) {
+    return ObjectTemplate._getDefineProperty(prop, this.__template__);
+};
+
+ObjectTemplate.Supertype.prototype.amorphicGetPropertyValues = function f(prop) {
+    var defineProperty = this.__prop__(prop);
+
+    if (typeof(defineProperty.values) == 'function') {
+        return defineProperty.values.call(this);
+    }
+    return defineProperty.values;
+};
+
+ObjectTemplate.Supertype.prototype.amorphicGetPropertyDescriptions = function e(prop) {
+    var defineProperty = this.__prop__(prop);
+
+    if (typeof(defineProperty.descriptions) == 'function') {
+        return defineProperty.descriptions.call(this);
+    }
+
+    return defineProperty.descriptions;
+};
+
+ObjectTemplate.Supertype.prototype.__prop__ = ObjectTemplate.Supertype.prototype.amorphicGetPropertyDefinition;
+ObjectTemplate.Supertype.prototype.__values__ = ObjectTemplate.Supertype.prototype.amorphicGetPropertyValues;
+ObjectTemplate.Supertype.prototype.__descriptions__ = ObjectTemplate.Supertype.prototype.amorphicGetPropertyDescriptions;
+ObjectTemplate.Supertype.prototype.toJSONString = ObjectTemplate.Supertype.prototype.amorphicToJSON;
 
 ObjectTemplate.property = function (props) {
     require('reflect-metadata');
