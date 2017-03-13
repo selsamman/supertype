@@ -13,7 +13,8 @@
     },
     "scripts": {
         "lint": "eslint .",
-        "test": "./node_modules/mocha/bin/mocha ./test/*.js"
+        "test": "./node_modules/mocha/bin/mocha ./test/*.js",
+        "test:coverage": "instanbul cover _mocha -- test/* -R spec"
     },
     "directories": {
     },
