@@ -1703,6 +1703,11 @@ ObjectTemplate.getClasses = function () {
             if (template.__shadowParent__) {
                 template.__shadowParent__.__shadowChildren__.push(template);
             }
+            template.props = {};
+            var propst = ObjectTemplate._getDefineProperties(template, undefined, true);
+            for (var propd in propst) {
+                template.props[propd] = propst[propd];
+            }
         }
         if (this.__exceptions__) {
             throw new Error(this.__exceptions__.map(createMessageLine).join('\n'));
