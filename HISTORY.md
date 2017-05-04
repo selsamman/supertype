@@ -1,5 +1,9 @@
 ## 2.2.0
 * Support for TypeScript.
+## 2.1.2
+* Added feature to allow `toClient` and `toServer` properties on an extended template.
+## 2.1.1
+* Fix to support IE with lazy template loading
 ## 2.1.0
 * Support for lazy template loading.
 ## 2.0.1

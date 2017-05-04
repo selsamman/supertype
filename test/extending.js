@@ -9,7 +9,8 @@ var BaseTemplate1 = ObjectTemplate.create('BaseTemplate1',
         str:        {type: String, value: 'Base'},
         obj:        {type: Object, value: {type: 'Base'}},
         date:       {type: Date, value: new Date(100)},
-        enum:		{type: String, values: ['b1'], descriptions: {'b1': 'BaseTemplate1'}}
+        enum:		{type: String, values: ['b1'], descriptions: {'b1': 'BaseTemplate1'}},
+        getNum:     function () {return this.num}
     }
 );
 
