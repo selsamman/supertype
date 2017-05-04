@@ -1,3 +1,5 @@
+## 2.2.0
+* Support for TypeScript.
 ## 2.1.0
 * Support for lazy template loading.
 ## 2.0.1
