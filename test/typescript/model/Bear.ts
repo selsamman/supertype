@@ -2,8 +2,7 @@ import {Supertype, supertypeClass, property} from '../../../index';
 import {Animal} from './Animal';
 
 @supertypeClass
-export class Bear extends Animal
-{
+export class Bear extends Animal  {
     @property()
     bearStuff: string = 'maul';
     constructor () {
@@ -13,4 +12,4 @@ export class Bear extends Animal
     canHug () {
         return true;
     }
-};
+}
