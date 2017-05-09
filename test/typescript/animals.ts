@@ -16,18 +16,25 @@ describe('Freeze Dried Arks', function () {
         expect(Bear.amorphicParentClass).to.equal(Animal);
         expect(Lion.amorphicParentClass).to.equal(Animal);
     });
-    it ('has property values', function () {
+    it ('has static property values', function () {
         expect(Lion.amorphicProperties.lionStuff.type).to.equal(String);
         expect(Bear.amorphicProperties.lionStuff).to.equal(undefined);
         expect(Animal.amorphicProperties.lionStuff).to.equal(undefined);
         expect(Bear.amorphicProperties.isMammal).to.equal(undefined);
         expect(Bear.amorphicGetProperties().isMammal.type).to.equal(Boolean);
         expect(Animal.amorphicProperties.isMammal.type).to.equal(Boolean);
+        expect(Animal.amorphicClassName).to.equal('Animal');
+        expect(Bear.amorphicClassName).to.equal('Bear');
+    });
+    it ('has object property values', function () {
         var ark = new Ark();
         expect(ark.amorphicGetPropertyValues('size').length).to.equal(2);
         expect(ark.amorphicGetPropertyDescriptions('size').s).to.equal('small');
+        expect(ark.__template__.__name__).to.equal('Ark');
+        expect(ark.amorphicClass.__name__).to.equal('Ark');
+        expect(ark.amorphicClass.amorphicClassName).to.equal('Ark');
+        expect(ark.amorphicGetClassName()).to.equal('Ark');
     });
-
     it ('create the arc', function (done) {
         Ark.createProperty('foo', {isLocal: true, type: String, value: 'foo'});
         Ark.createProperty('bar', {isLocal: true, type: String, value: 'bar'});

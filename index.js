@@ -1614,6 +1614,8 @@
         objectTemplate = objectTemplate || ObjectTemplate;
 
         target.prototype.__template__ = target;
+        target.prototype.amorphicClass = target;
+	    target.prototype.amorphicGetClassName = function () {return target.__name__};
         target.isObjectTemplate = true;
         target.__injections__ = [];
         target.__templateProps__ = props;

@@ -11,6 +11,7 @@ export class Supertype {
     static amorphicChildClasses: Array<Constructable>;
     static amorphicParentClass: Constructable;
     static amorphicFromJSON(json: string)
+    static amorphicClassName : string;
 
     // Object members
     __id__: String;
@@ -29,6 +30,9 @@ export class Supertype {
     __props__()
     __descriptions__ ()
     __values__ ()
+    __template__ : any
+    amorphicClass : any
+    amorphicGetClassName () : string
     static fromJSON (json: string)
 }
 export function property(props?: Object);
