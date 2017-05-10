@@ -7,6 +7,7 @@ export class SupertypeLogger {
     level: any;
     log (level : number, ...data : any[]);
     fatal (...data : any[]) : void;
+    error (...data : any[]) : void;
     warn (...data : any[]) : void;
     info (...data : any[]) : void;
     debug (...data : any[]) : void;
