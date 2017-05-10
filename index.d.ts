@@ -1,8 +1,38 @@
 type Constructable = new (...args: any[]) => {};
 
+
+export class SupertypeLogger {
+    context: any;
+    granularLevels: any;
+    level: any;
+    log (level : number, ...data : any[]);
+    fatal (...data : any[]) : void;
+    warn (...data : any[]) : void;
+    info (...data : any[]) : void;
+    debug (...data : any[]) : void;
+    trace (...data : any[]) : void;
+    setLevel(number) : void;
+    startContext(context : any) : void;
+    setContextProps(context : any) : void;
+    clearContextProps(context : any) : void;
+    createChildLogger(context : any) : SupertypeLogger;
+    prettyPrint(level : number, ...data : any[]) : string;
+
+    // for overriding
+    sendToLog: Function;
+    formatDateTime: Function;
+}
+
+export class SupertypeSession {
+    logger: SupertypeLogger
+    __dictionary__ : any;
+    getClasses() : any;
+}
+
 export class Supertype {
 
     constructor ()
+    amorphic : SupertypeSession;
 
     // Class members (static)
     static amorphicCreateProperty(prop: String, defineProperty: Object)

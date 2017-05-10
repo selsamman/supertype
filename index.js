@@ -1814,6 +1814,8 @@
             objectTemplate.__injections__[j].call(this, this);
         }
 
+        this.amorphic = objectTemplate;
+
         return this;
 
         function constructorName(constructor) {
@@ -1902,7 +1904,6 @@
         return function (target, propertyName, descriptor) {
         };
     };
-
 
     return ObjectTemplate;
 
