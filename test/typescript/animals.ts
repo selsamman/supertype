@@ -4,6 +4,7 @@ import {Ark} from "./model/Arc";
 import {Lion} from "./model/Lion";
 import {Bear} from "./model/Bear";
 import {Animal} from "./model/Animal";
+import {amorphicStatic} from "../../index";
 
 describe('Freeze Dried Arks', function () {
     var ark1;
@@ -25,6 +26,8 @@ describe('Freeze Dried Arks', function () {
         expect(Animal.amorphicProperties.isMammal.type).to.equal(Boolean);
         expect(Animal.amorphicClassName).to.equal('Animal');
         expect(Bear.amorphicClassName).to.equal('Bear');
+        expect(Bear.amorphicStatic).to.equal(Bear['__objectTemplate__']);
+        expect(amorphicStatic).to.equal(Bear['__objectTemplate__']);
     });
     it ('has object property values', function () {
         var ark = new Ark();

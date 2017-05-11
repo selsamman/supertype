@@ -1643,6 +1643,7 @@
         Object.defineProperty(target, '__children__', {get: getChildren});
         Object.defineProperty(target, 'amorphicParentClass', {get: getParent});
         Object.defineProperty(target, 'amorphicChildClasses', {get: getChildren});
+	    Object.defineProperty(target, 'amorphicStatic', {get: function () {return objectTemplate}});
 
         target.fromPOJO = function fromPOJO(pojo) {
             return objectTemplate.fromPOJO(pojo, target);
@@ -1904,6 +1905,8 @@
         return function (target, propertyName, descriptor) {
         };
     };
+
+    ObjectTemplate.amorphicStatic = ObjectTemplate;
 
     return ObjectTemplate;
 

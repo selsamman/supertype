@@ -30,6 +30,8 @@ export class SupertypeSession {
     getClasses() : any;
 }
 
+export class amorphicStatic extends SupertypeSession {}
+
 export class Supertype {
 
     constructor ()
@@ -43,6 +45,7 @@ export class Supertype {
     static amorphicParentClass: Constructable;
     static amorphicFromJSON(json: string)
     static amorphicClassName : string;
+    static amorphicStatic : SupertypeSession;
 
     // Object members
     __id__: String;
