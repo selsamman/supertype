@@ -70,4 +70,4 @@ export class Supertype {
     static fromJSON (json: string)
 }
 export function property(props?: Object);
-export function supertypeClass(target?: Function);
+export function supertypeClass(target?: any);

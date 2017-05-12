@@ -18,6 +18,7 @@ describe('Freeze Dried Arks', function () {
         expect(Lion.amorphicParentClass).to.equal(Animal);
     });
     it ('has static property values', function () {
+        expect(Animal['__toClient__']).to.equal(true);
         expect(Lion.amorphicProperties.lionStuff.type).to.equal(String);
         expect(Bear.amorphicProperties.lionStuff).to.equal(undefined);
         expect(Animal.amorphicProperties.lionStuff).to.equal(undefined);
