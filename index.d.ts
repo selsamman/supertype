@@ -27,8 +27,8 @@ export class Supertype {
     static __parent__: Constructable;
     toJSONString()
     __props__()
-    __descriptions__ ()
-    __values__ ()
+    __descriptions__(prop: string)
+    __values__(prop: string)
     static fromJSON (json: string)
 }
 export function property(props?: Object);
