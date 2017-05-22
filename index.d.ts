@@ -29,7 +29,7 @@ export class Supertype {
     __props__()
     __descriptions__ ()
     __values__ ()
-    static fromJSON (json: string)
+    static fromJSON (json: string, idPrefix: string)
 }
 export function property(props?: Object);
 export function supertypeClass(target?: Function);
