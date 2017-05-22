@@ -1870,10 +1870,15 @@
         return defineProperty.descriptions;
     };
 
+    ObjectTemplate.Supertype.prototype.externalInject = function i(injector) {
+        ObjectTemplate.inject(this, injector);
+    };
+
     ObjectTemplate.Supertype.prototype.__prop__ = ObjectTemplate.Supertype.prototype.amorphicGetPropertyDefinition;
     ObjectTemplate.Supertype.prototype.__values__ = ObjectTemplate.Supertype.prototype.amorphicGetPropertyValues;
     ObjectTemplate.Supertype.prototype.__descriptions__ = ObjectTemplate.Supertype.prototype.amorphicGetPropertyDescriptions;
     ObjectTemplate.Supertype.prototype.toJSONString = ObjectTemplate.Supertype.prototype.amorphicToJSON;
+    ObjectTemplate.Supertype.prototype.inject = ObjectTemplate.Supertype.prototype.externalInject;
 
     ObjectTemplate.property = function (props) {
         require('reflect-metadata');
