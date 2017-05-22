@@ -67,7 +67,7 @@ export class Supertype {
     __template__ : any
     amorphicClass : any
     amorphicGetClassName () : string
-    static fromJSON (json: string)
+    static fromJSON (json: string, idPrefix: string)
 }
 export function property(props?: Object);
 export function supertypeClass(target?: any);
