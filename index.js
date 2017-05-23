@@ -1879,8 +1879,13 @@
     ObjectTemplate.Supertype.prototype.__descriptions__ = ObjectTemplate.Supertype.prototype.amorphicGetPropertyDescriptions;
     ObjectTemplate.Supertype.prototype.toJSONString = ObjectTemplate.Supertype.prototype.amorphicToJSON;
     ObjectTemplate.Supertype.prototype.inject = ObjectTemplate.Supertype.prototype.externalInject;
+	ObjectTemplate.Supertype.prototype.createCopy = function fromPOJO(creator) {
+		var obj = this;
+		return ObjectTemplate.fromPOJO(obj, obj.__template__, null, null, undefined, null, null, creator);
+	};
 
-    ObjectTemplate.property = function (props) {
+
+	ObjectTemplate.property = function (props) {
         require('reflect-metadata');
         return function (target, targetKey) {
             props = props || {};
