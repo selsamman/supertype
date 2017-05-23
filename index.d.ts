@@ -68,7 +68,7 @@ export class Supertype {
     amorphicClass : any
     amorphicGetClassName () : string
     static fromJSON (json: string, idPrefix: string)
-    inject(injector: any)
+    static inject(injector: any)
     createCopy(callback : Function)
 }
 export function property(props?: Object);
