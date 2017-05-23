@@ -598,7 +598,7 @@
          - [object] - a one element array of the object means don't copy the properties or traverse
          */
             this.createCopy = function createCopy(creator) {
-                return ObjectTemplate.createCopy(this, creator);
+                return ObjectTemplate._createCopy(this, creator);
             };
 
             function pruneExisting(obj, props) {
@@ -987,7 +987,7 @@
  *
  * @returns {unknown}
  */
-    ObjectTemplate.createCopy = function createCopy(obj, creator) {
+    ObjectTemplate._createCopy = function createCopy(obj, creator) {
         return this.fromPOJO(obj, obj.__template__, null, null, undefined, null, null, creator);
     };
 
@@ -1870,15 +1870,18 @@
         return defineProperty.descriptions;
     };
 
-    ObjectTemplate.Supertype.prototype.externalInject = function i(injector) {
+    ObjectTemplate.Supertype.prototype.inject = function i(injector) {
         ObjectTemplate.inject(this, injector);
+    };
+
+    ObjectTemplate.Supertype.prototype.createCopy = function i(creator) {
+        return this.createCopy(creator);
     };
 
     ObjectTemplate.Supertype.prototype.__prop__ = ObjectTemplate.Supertype.prototype.amorphicGetPropertyDefinition;
     ObjectTemplate.Supertype.prototype.__values__ = ObjectTemplate.Supertype.prototype.amorphicGetPropertyValues;
     ObjectTemplate.Supertype.prototype.__descriptions__ = ObjectTemplate.Supertype.prototype.amorphicGetPropertyDescriptions;
     ObjectTemplate.Supertype.prototype.toJSONString = ObjectTemplate.Supertype.prototype.amorphicToJSON;
-    ObjectTemplate.Supertype.prototype.inject = ObjectTemplate.Supertype.prototype.externalInject;
 
     ObjectTemplate.property = function (props) {
         require('reflect-metadata');
