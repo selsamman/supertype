@@ -598,7 +598,7 @@
          - [object] - a one element array of the object means don't copy the properties or traverse
          */
             this.createCopy = function createCopy(creator) {
-                return ObjectTemplate._createCopy(this, creator);
+                return ObjectTemplate.createCopy(this, creator);
             };
 
             function pruneExisting(obj, props) {
@@ -987,7 +987,7 @@
  *
  * @returns {unknown}
  */
-    ObjectTemplate._createCopy = function createCopy(obj, creator) {
+    ObjectTemplate.createCopy = function createCopy(obj, creator) {
         return this.fromPOJO(obj, obj.__template__, null, null, undefined, null, null, creator);
     };
 
