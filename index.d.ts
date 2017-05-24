@@ -28,6 +28,7 @@ export class SupertypeSession {
     logger: SupertypeLogger
     __dictionary__ : any;
     getClasses() : any;
+    reqSession: any;
 }
 
 export class amorphicStatic extends SupertypeSession {}
