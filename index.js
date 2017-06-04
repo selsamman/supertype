@@ -1174,7 +1174,10 @@
 
         try {
             return JSON.stringify(obj, function a(key, value) {
-                if (value && value.__template__ && value.__id__) {
+	            if (key === '__objectTemplate__' || key === 'amorphic') {
+		            return null;
+	            }
+	            if (value && value.__template__ && value.__id__) {
                     if (idMap[value.__id__]) {
                         value = {__id__: value.__id__.toString()};
                     }
