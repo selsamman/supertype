@@ -62,12 +62,14 @@ export class Supertype {
     static __parent__: Constructable;
     toJSONString()
     __props__()
-    __descriptions__ ()
-    __values__ ()
+    __descriptions__(prop: string)
+    __values__(prop: string)
     __template__ : any
     amorphicClass : any
     amorphicGetClassName () : string
-    static fromJSON (json: string)
+    static fromJSON (json: string, idPrefix?: string)
+    static inject(injector: any)
+    createCopy(callback : Function)
 }
 export function property(props?: Object);
 export function supertypeClass(target?: any);

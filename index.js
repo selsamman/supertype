@@ -1174,7 +1174,10 @@
 
         try {
             return JSON.stringify(obj, function a(key, value) {
-                if (value && value.__template__ && value.__id__) {
+	            if (key === '__objectTemplate__' || key === 'amorphic') {
+		            return null;
+	            }
+	            if (value && value.__template__ && value.__id__) {
                     if (idMap[value.__id__]) {
                         value = {__id__: value.__id__.toString()};
                     }
@@ -1874,8 +1877,16 @@
     ObjectTemplate.Supertype.prototype.__values__ = ObjectTemplate.Supertype.prototype.amorphicGetPropertyValues;
     ObjectTemplate.Supertype.prototype.__descriptions__ = ObjectTemplate.Supertype.prototype.amorphicGetPropertyDescriptions;
     ObjectTemplate.Supertype.prototype.toJSONString = ObjectTemplate.Supertype.prototype.amorphicToJSON;
+    ObjectTemplate.Supertype.prototype.inject = function inject(injector) {
+        ObjectTemplate.inject(this, injector);
+    };
+	ObjectTemplate.Supertype.prototype.createCopy = function fromPOJO(creator) {
+		var obj = this;
+		return ObjectTemplate.fromPOJO(obj, obj.__template__, null, null, undefined, null, null, creator);
+	};
 
-    ObjectTemplate.property = function (props) {
+
+	ObjectTemplate.property = function (props) {
         require('reflect-metadata');
         return function (target, targetKey) {
             props = props || {};
