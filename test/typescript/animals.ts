@@ -1,10 +1,20 @@
 import {expect} from 'chai';
 import * as mocha from 'mocha';
 import {Ark} from "./model/Arc";
+import {LionContainer} from "./model/Arc";
+import {AnimalContainer} from "./model/Arc";
 import {Lion} from "./model/Lion";
 import {Bear} from "./model/Bear";
 import {Animal} from "./model/Animal";
 import {amorphicStatic} from "../../index";
+
+
+describe('AnimalContainer', function () {
+    it ('has proper types', function () {
+        expect(AnimalContainer.amorphicProperties.containee.type).to.equal(Animal);
+        expect(LionContainer.amorphicProperties.containee.type).to.equal(Lion);
+    });
+});
 
 describe('Freeze Dried Arks', function () {
     var ark1;

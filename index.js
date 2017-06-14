@@ -1904,7 +1904,7 @@
         // Deferred type
             }
             else if (typeof props.getType === 'function') {
-                target.__deferredType__ = target.__deferredType__ || {};
+                target.__deferredType__ = target.hasOwnProperty('__deferredType__') ? target.__deferredType__ : {};
                 target.__deferredType__[targetKey] = props.getType;
                 delete props.getType;
             }

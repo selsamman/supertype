@@ -16,3 +16,5 @@ export class Animal extends Supertype
     @property({getType: () => {return Ark}})
     ark:    Ark;
 };
+
+
