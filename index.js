@@ -1885,6 +1885,9 @@
 		return ObjectTemplate.fromPOJO(obj, obj.__template__, null, null, undefined, null, null, creator);
 	};
 
+	ObjectTemplate.Supertype.prototype.init = function init() {
+	    return this;
+    }
 
 	ObjectTemplate.property = function (props) {
         require('reflect-metadata');
