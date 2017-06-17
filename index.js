@@ -547,7 +547,7 @@
             };
 
             this.__values__ = function f(prop) {
-                var defineProperty = this.__prop__(prop);
+                var defineProperty = this.__prop__(prop) || this.__prop__('_' + prop);
 
                 if (typeof(defineProperty.values) === 'function') {
                     return defineProperty.values.call(this);
@@ -557,7 +557,7 @@
             };
 
             this.__descriptions__ = function e(prop) {
-                var defineProperty = this.__prop__(prop);
+                var defineProperty = this.__prop__(prop) || this.__prop__('_' + prop);
 
                 if (typeof(defineProperty.descriptions) === 'function') {
                     return defineProperty.descriptions.call(this);
@@ -1855,7 +1855,7 @@
     };
 
     ObjectTemplate.Supertype.prototype.amorphicGetPropertyValues = function f(prop) {
-        var defineProperty = this.__prop__(prop);
+        var defineProperty = this.__prop__(prop) || this.__prop__('_' + prop);
 
         if (typeof(defineProperty.values) === 'function') {
             return defineProperty.values.call(this);
@@ -1864,7 +1864,7 @@
     };
 
     ObjectTemplate.Supertype.prototype.amorphicGetPropertyDescriptions = function e(prop) {
-        var defineProperty = this.__prop__(prop);
+        var defineProperty = this.__prop__(prop) || this.__prop__('_' + prop);
 
         if (typeof(defineProperty.descriptions) === 'function') {
             return defineProperty.descriptions.call(this);
