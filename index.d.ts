@@ -35,7 +35,6 @@ export class amorphicStatic extends SupertypeSession {}
 export class Supertype {
 
     constructor ()
-    init ()
     amorphic : SupertypeSession;
 
     // Class members (static)
