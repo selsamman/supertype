@@ -1722,7 +1722,7 @@
                 return target.prototype.__amorphicprops__;
             }
             function getName () {
-                return target.toString().match(new RegExp(/.*function (.*)\(/))[1];
+                return target.toString().match(/function ([^(]*)/)[1];
             }
             function getDictionary () {
                 objectTemplate.getClasses();
