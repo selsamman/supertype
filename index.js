@@ -1066,8 +1066,11 @@
     // Go through all the properties and transfer them to newly created object
         var props = obj.__template__.getProperties();
 
-        for (var propb in props) {
+        for (var propb in pojo) {
+            propb = propb.replace(/^__/, '');
             var defineProp = props[propb];
+            if (!defineProp)
+                continue;
             var type = defineProp.type;
 
         // Because semotus can serialize only the shadow properties we try and restore them
