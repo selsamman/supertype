@@ -1,5 +1,6 @@
 ## 2.2.2
 * Fixed deserialization to preserve order of POJO
+* Fixed injection issue
 ## 2.2.1
 * Numerous fixes for typescript
 * Added some missing typings like amorphicClass, amorphicClassName
