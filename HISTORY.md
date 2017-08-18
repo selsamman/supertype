@@ -1,3 +1,13 @@
+## 2.2.3
+* Fix to controller name lookup to support minification.
+## 2.2.2
+* Fixed deserialization to preserve order of POJO
+* Fixed injection issue
+## 2.2.1
+* Numerous fixes for typescript
+* Added some missing typings like amorphicClass, amorphicClassName
+* Updated several TypeScript tests.
+* Support for minified code.
 ## 2.2.0
 * Support for TypeScript.
 ## 2.1.2
