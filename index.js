@@ -1346,17 +1346,15 @@
         if (!returnValue) {
             returnValue = {};
         }
-
+        if (template.parentTemplate) {
+            this._getDefineProperties(template.parentTemplate, returnValue, includeVirtual);
+        }
         if (template.defineProperties) {
             for (var prop in template.defineProperties) {
                 if (includeVirtual || !template.defineProperties[prop].isVirtual) {
                     returnValue[prop] = template.defineProperties[prop];
                 }
             }
-        }
-
-        if (template.parentTemplate) {
-            this._getDefineProperties(template.parentTemplate, returnValue, includeVirtual);
         }
 
         return returnValue;

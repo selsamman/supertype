@@ -1,3 +1,5 @@
+## 2.2.4
+* Fixed issue where when inquiring on a class/template's properties we were allowing the superclass property definition to take precedence
 ## 2.2.3
 * Fix to controller name lookup to support minification.
 ## 2.2.2

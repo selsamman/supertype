@@ -7,7 +7,8 @@ import {Lion} from "./model/Lion";
 import {Bear} from "./model/Bear";
 import {Animal} from "./model/Animal";
 import {amorphicStatic} from "../../index";
-
+import {BaseType} from "./model/SubClass";
+import {SubType} from "./model/SubClass";
 
 describe('AnimalContainer', function () {
     it ('has proper types', function () {
@@ -104,6 +105,21 @@ describe('Freeze Dried Arks', function () {
 
         done();
     });
+    it ('has proper attribute', function () {
+        let props = SubType.getProperties();
+        expect(props.fieldToOverwrite.type).to.equal(String);
+    });
+
+    it ('has property attribute from the base class', function () {
+        let props = BaseType.amorphicGetProperties();
+        expect(props.fieldToOverwrite.onlyOnBase).to.equal(true);
+    });
+
+    it ('has property attribute from the subclass class', function () {
+        let props = SubType.amorphicGetProperties();
+        expect(props.fieldToOverwrite.onlyOnConcrete).to.equal(true);
+    });
+
     it ('can log', function () {
         var date = new Date('2010-11-11T00:00:00.000Z');
         var output = '';
