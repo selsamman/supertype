@@ -37,7 +37,7 @@ describe('Supertype', function() {
 
             class Base extends Supertype {
                 @property()
-                __objectTemplate__ = 'sup';
+                __objectTemplate__ = 'notNull';
 
                 @property()
                 another: Another;
