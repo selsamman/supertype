@@ -341,6 +341,7 @@
  *
  * @param {unknown} injector - unknown
  */
+// Currently only used in amorphic ticket test in test/standalone folder. Not needed.
     ObjectTemplate.globalInject = function globalInject(injector) {
         this.__injections__.push(injector);
     };
@@ -1639,7 +1640,7 @@
             target.prototype.amorphicGetClassName = function () {return target.__name__};
             target.isObjectTemplate = true;
             target.__injections__ = [];
-            target.__templateProps__ = props;
+            // target.__templateProps__ = props;
             target.__objectTemplate__ = objectTemplate;
             var createProps = objectTemplate.getTemplateProperties(props || {});
             target.__toClient__ = createProps.__toClient__;
@@ -1813,7 +1814,6 @@
  * @returns {Object} the object itself
  */
     ObjectTemplate.Supertype = function (objectTemplate) {
-
         objectTemplate = objectTemplate || ObjectTemplate;
 
         var template = this.__template__;
