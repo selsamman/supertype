@@ -32,7 +32,7 @@ export class SupertypeSession {
 
 export class amorphicStatic extends SupertypeSession {}
 
-export class Supertype {
+export abstract class Supertype {
 
     constructor ()
     amorphic : SupertypeSession;
@@ -61,6 +61,7 @@ export class Supertype {
     static inject(injector: any);
     createCopy(callback: Function);
     copyProperties(obj: any);
+    abstract init(...args);
     toJSONString();
     __props__();
     __descriptions__(prop: string);
@@ -80,3 +81,4 @@ export class Supertype {
 }
 export function property(props?: object);
 export function supertypeClass(target?: any);
+export function performInjections();

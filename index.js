@@ -37,7 +37,7 @@
     }
 
 /**
- * Purpose unknown
+ * Purpose unknown - used by Amorphic
  */
     ObjectTemplate.performInjections = function performInjections() {
         this.getClasses();
