@@ -37,7 +37,7 @@
     }
 
 /**
- * Purpose unknown
+ * Purpose unknown - used by Amorphic
  */
     ObjectTemplate.performInjections = function performInjections() {
         this.getClasses();
@@ -341,6 +341,7 @@
  *
  * @param {unknown} injector - unknown
  */
+// Currently only used in amorphic ticket test in test/standalone folder. Not needed.
     ObjectTemplate.globalInject = function globalInject(injector) {
         this.__injections__.push(injector);
     };
@@ -1811,7 +1812,6 @@
  * @returns {Object} the object itself
  */
     ObjectTemplate.Supertype = function (objectTemplate) {
-
         objectTemplate = objectTemplate || ObjectTemplate;
 
         var template = this.__template__;
