@@ -26,7 +26,7 @@
         "test": "istanbul cover _mocha -- test/* -R spec",
         "test:config": "mocha test/config",
         "test:example": "mocha test/example",
-        "test:typescript": "mocha --compilers ts:ts-node/register,tsx:ts-node/register test/typescript/animals.ts",
+        "test:typescript": "mocha --compilers ts:ts-node/register test/typescript/animals.ts",
         "test:ts": "mocha --compilers ts:ts-node/register unit_tests/* -R spec",
         "coverage:ts": "nyc npm run test:typescript",
         "coverage:ts:unit": "nyc npm run test:ts"

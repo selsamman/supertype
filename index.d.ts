@@ -51,6 +51,7 @@ export abstract class Supertype {
     static amorphicStatic: SupertypeSession;
     static fromPOJO (pojo: object);
     static __injections__: any;
+    static __shadowChildren__: any;
 
     // Deprecated legacy naming (static)
     static createProperty(prop: string, defineProperty: object);

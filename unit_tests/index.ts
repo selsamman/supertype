@@ -2,6 +2,7 @@ import {expect, assert} from 'chai';
 import * as sinon from 'sinon';
 
 import {property, Supertype, supertypeClass} from '../index.js';
+import * as ObjectTemplate from '../index.js';
 
 describe('Supertype', function() {
     describe('base class', function() {
@@ -17,7 +18,10 @@ describe('Supertype', function() {
             };
 
             const baseInstantiated = new Base;
-            console.log(Object.keys(baseInstantiated));
+
+            assert(!baseInstantiated.amorphicLeaveEmpty);
+            expect(baseInstantiated.__id__).to.be.a('string');
+            expect(baseInstantiated.amorphic).to.deep.equal(ObjectTemplate);
         });
     });
     describe('test', function() {
@@ -29,11 +33,19 @@ describe('Supertype', function() {
                 }
             };
 
-            console.log(Test2);
             assert(Test2.isObjectTemplate);
             expect(Test2.__injections__).to.be.an('array');
+            expect(Test2.fromPOJO).to.be.a('function');
+            expect(Test2.amorphicFromJSON).to.be.a('function');
+            expect(Test2.fromJSON).to.be.a('function');
+            expect(Test2.amorphicGetProperties).to.be.a('function');
+            expect(Test2.amorphicCreateProperty).to.be.a('function');
+            assert(Test2.__toClient__);
+            assert(Test2.__toServer__);
+            expect(Test2.__shadowChildren__).to.be.an('array');
         });
     });
+
     describe('.amorphicToJSON', () => {
         let baseInstance, anotherInstance;
         before(() => {
