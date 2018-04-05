@@ -5,7 +5,7 @@ import {property, Supertype, supertypeClass} from '../index.js';
 import * as ObjectTemplate from '../index.js';
 
 describe('Supertype', function() {
-    describe('base class', function() {
+    describe('instantiated class', function() {
         it('should have all the functionality the base class should have', function() {
             @supertypeClass
             class Base extends Supertype {
@@ -20,11 +20,11 @@ describe('Supertype', function() {
             const baseInstantiated = new Base;
 
             assert(!baseInstantiated.amorphicLeaveEmpty);
-            expect(baseInstantiated.__id__).to.be.a('string');
+            expect(baseInstantiated.__id__).to.equal('local-Base-2');
             expect(baseInstantiated.amorphic).to.deep.equal(ObjectTemplate);
         });
     });
-    describe('test', function() {
+    describe('class', function() {
         it('should setup a supertype class since the class is passed through the decorator function', function() {
             @supertypeClass
             class Test2 extends Supertype {
