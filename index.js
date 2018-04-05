@@ -1639,7 +1639,6 @@
             target.prototype.amorphicGetClassName = function () {return target.__name__};
             target.isObjectTemplate = true;
             target.__injections__ = [];
-
             target.__objectTemplate__ = objectTemplate;
             var createProps = objectTemplate.getTemplateProperties(target || {});
             target.__toClient__ = createProps.__toClient__;
