@@ -148,7 +148,7 @@ function supertypeClass(opts: any): any {
         ctor['isObjectTemplate'] = true;
         ctor['__injections__'] = [];
 
-        let createProps = getTemplateProperties(ctor);
+        let createProps = getTemplateProperties(opts);
         ctor['__toClient__'] = createProps.__toClient__;
         ctor['__toServer__'] = createProps.__toServer__;
         ctor['__shadowChildren__'] = [];
